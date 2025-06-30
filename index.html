@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="appTitle">Dahook IT Powered IW Tactical Analyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #e2e8f0;
+            background-image: radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.1), transparent 40%);
+        }
+        #chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #chat-container::-webkit-scrollbar-thumb {
+            background-color: #334155;
+            border-radius: 20px;
+        }
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .bot-message-gradient {
+            background-color: rgba(30, 41, 59, 0.5);
+            border: 1px solid #475569;
+        }
+        .user-message-gradient {
+            background: linear-gradient(145deg, #0ea5e9, #0284c7);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-message {
+            animation: fadeIn 0.3s ease-out;
+        }
+        .feature-button {
+            transition: all 0.2s ease-in-out;
+            border-width: 1px;
+            border-color: #475569;
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+        .feature-button:hover {
+             border-color: #94a3b8;
+             background-color: rgba(51, 65, 85, 0.7);
+        }
+        .feature-button.active {
+            background-color: #0ea5e9;
+            color: #ffffff;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+        }
+        .action-button {
+            transition: all 0.2s ease-in-out;
+            background-color: #334155;
+            border: 1px solid #64748b;
+        }
+        .action-button:hover {
+            background-color: #475569;
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+        .glass-header-footer {
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-color: rgba(51, 65, 85, 0.5);
+        }
+        .prose-custom h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #f0f9ff;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose-custom p {
+            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+        .prose-custom ul {
+            margin-top: 0.75rem;
+            margin-left: 0;
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .prose-custom li {
+            margin-top: 0.25rem;
+            padding-left: 0;
+        }
+        .prose-custom strong {
+            color: #7dd3fc;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <header class="glass-header-footer border-b p-4 shadow-lg text-center shrink-0">
+        <div class="flex justify-between items-center">
+             <div class="w-16"></div>
+            <div class="text-center">
+                <h1 id="headerTitle" class="text-xl font-black font-mono text-sky-400 tracking-wider flex items-center justify-center gap-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 1 0 0-12"></path></svg>
+                    IW TACTICAL ANALYST
+                </h1>
+                <p id="headerSubtitle" class="text-xs text-sky-400/60 font-semibold">Dahook IT powered</p>
+            </div>
+            <button id="langSwitcher" class="lang-switcher w-16 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-slate-800/50 border-slate-700 hover:bg-slate-700/70">
+                EN
+            </button>
+        </div>
+    </header>
+
+    <main id="chat-container" class="flex-1 p-4 overflow-y-auto space-y-6">
+        <!-- Chat messages will be appended here -->
+    </main>
+    
+    <div id="action-button-container" class="px-4 pb-2 text-center"></div>
+
+    <footer class="glass-header-footer border-t p-4 shrink-0">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+             <button id="analyzeMode" class="feature-button active flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                <span id="analyzeBtnText">Analyze</span>
+            </button>
+             <button id="influenceMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span id="influenceBtnText">Influence</span>
+            </button>
+             <button id="simulateMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"></path><path d="M13 19h6v-6"></path><path d="m15 15 6 6"></path></svg>
+                <span id="simulateBtnText">Simulate</span>
+            </button>
+             <button id="threatIntelMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"></path><path d="M21 12H3"></path><path d="M21 18H3"></path></svg>
+                <span id="threatIntelBtnText">Threat Intel</span>
+            </button>
+        </div>
+        <div class="flex items-center space-x-3">
+            <input type="text" id="userInput" class="flex-1 bg-slate-800 border border-slate-700 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500">
+            <button id="sendButton" class="bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-full h-12 w-12 flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+        <p class="text-xs text-center text-slate-500 mt-4" id="copyrightText">Copyright &copy; <span id="copyright-year"></span> Nurtaz Uddin Al Masuk. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const analyzeModeBtn = document.getElementById('analyzeMode');
+        const influenceModeBtn = document.getElementById('influenceMode');
+        const simulateModeBtn = document.getElementById('simulateMode');
+        const threatIntelModeBtn = document.getElementById('threatIntelMode');
+        const actionButtonContainer = document.getElementById('action-button-container');
+        const langSwitcher = document.getElementById('langSwitcher');
+
+        let chatHistory = [];
+        let currentMode = 'analyze';
+        let currentLanguage = 'en';
+        let wargameState = { phase: 'idle', turns: 0, startIndex: -1 };
+        
+        const languageStrings = {
+            en: {
+                appTitle: "Dahook IT Powered IW Tactical Analyst",
+                headerTitle: "IW TACTICAL ANALYST",
+                headerSubtitle: "Dahook IT powered",
+                analyzeBtnText: "Analyze",
+                influenceBtnText: "Influence",
+                simulateBtnText: "Simulate",
+                threatIntelBtnText: "Threat Intel",
+                copyrightText: "Copyright &copy; {year} Nurtaz Uddin Al Masuk. All Rights Reserved.",
+                placeholders: {
+                    analyze: "e.g., Explain the OODA Loop",
+                    influence: "e.g., Target: Gamers, Goal: Promote cyber hygiene",
+                    simulate: "e.g., A corporate merger scenario",
+                    threat_intel: "e.g., Disinformation in the South China Sea"
+                },
+                tutorial: [
+                    "Welcome to the **IW Tactical Analyst**. I am a synthetic intelligence designed to help you navigate the complex world of Information Warfare.",
+                    "You can interact with me using four distinct modes. Select a mode below to begin:",
+                    "**Analyze Mode** 🔎\n- Ask me to explain any IW tactic, model, or concept. I can now understand more natural questions, like 'what is the ooda loop?'.",
+                    "**Influence Mode** 👥\n- Provide a target audience and a strategic goal, and I will design a detailed influence campaign for you.",
+                    "**Simulate Mode** ⚔️\n- Describe a conflict scenario or leave blank to auto-generate one. I will act as the 'Red Team' to launch an attack. You will be the 'Blue Team' and must decide how to respond.",
+                    "**Threat Intel Mode** 🌐\n- Ask about a current event or topic, and I will provide a threat briefing based on open-source intelligence.",
+                    "My responses are structured like **mind maps** for clarity. I'm ready for your query. Please select a mode and enter your first command."
+                ],
+                welcomeBack: "System re-activated. I am the **IW Tactical Analyst**. Please select a mode and issue your query.",
+                reportRequest: "Requesting Post-Action Report...",
+                reportBtnText: "✨ Request Post-Action Report",
+                autoScenario: "Requesting auto-generated scenario...",
+                blueTeamPlaceholder: "Describe your Blue Team action..."
+            },
+            bn: {
+                appTitle: "ডাহুক আইটি চালিত আইডব্লিউ কৌশলগত বিশ্লেষক",
+                headerTitle: "আইডব্লিউ কৌশলগত বিশ্লেষক",
+                headerSubtitle: "ডাহুক আইটি চালিত",
+                analyzeBtnText: "বিশ্লেষণ",
+                influenceBtnText: "প্রভাব",
+                simulateBtnText: "সিমুলেশন",
+                threatIntelBtnText: "থ্রেট ইন্টেল",
+                copyrightText: "কপিরাইট &copy; {year} নুরতাজ উদ্দিন মাসুক। সর্বস্বত্ব সংরক্ষিত।",
+                placeholders: {
+                    analyze: "যেমন, OODA Loop ব্যাখ্যা করুন",
+                    influence: "যেমন, টার্গেট: গেমার, লক্ষ্য: সাইবার হাইজিন প্রচার",
+                    simulate: "যেমন, একটি কর্পোরেট মার্জার পরিস্থিতি",
+                    threat_intel: "যেমন, দক্ষিণ চীন সাগরে ডিসইনফরমেশন"
+                },
+                tutorial: [
+                    "**আইডব্লিউ কৌশলগত বিশ্লেষকে** স্বাগতম। আমি একটি কৃত্রিম বুদ্ধিমত্তা যা আপনাকে ইনফরমেশন ওয়ারফেয়ারের জটিল জগত বুঝতে সাহায্য করার জন্য ডিজাইন করা হয়েছে।",
+                    "আপনি চারটি ভিন্ন মোড ব্যবহার করে আমার সাথে যোগাযোগ করতে পারেন। শুরু করতে নীচের একটি মোড নির্বাচন করুন:",
+                    "**বিশ্লেষণ মোড** 🔎\n- আমাকে যেকোনো আইডব্লিউ কৌশল, মডেল বা ধারণা ব্যাখ্যা করতে বলুন। আমি এখন 'ooda loop কী?'-এর মতো সাধারণ প্রশ্নও বুঝতে পারি।",
+                    "**প্রভাব মোড** 👥\n- একটি নির্দিষ্ট দর্শক এবং কৌশলগত লক্ষ্য দিন, এবং আমি আপনার জন্য একটি বিস্তারিত ইনফ্লুয়েন্স ক্যাম্পেইন ডিজাইন করব।",
+                    "**সিমুলেশন মোড** ⚔️\n- একটি সংঘর্ষের পরিস্থিতি বর্ণনা করুন অথবা একটি স্বয়ংক্রিয়ভাবে তৈরি করতে খালি রাখুন। আমি 'Red Team' হিসেবে আক্রমণ করব এবং আপনাকে 'Blue Team' হিসেবে প্রতিক্রিয়া জানাতে হবে।",
+                    "**থ্রেট ইন্টেল মোড** 🌐\n- কোনো সাম্প্রতিক ঘটনা বা বিষয় সম্পর্কে জিজ্ঞাসা করুন, এবং আমি ওপেন সোর্স ইন্টেলিজেন্সের উপর ভিত্তি করে একটি থ্রেট ব্রিফিং প্রদান করব।",
+                    "আমার উত্তরগুলো স্বচ্ছতার জন্য **মাইন্ড ম্যাপের** মতো করে সাজানো। আমি আপনার নির্দেশের জন্য প্রস্তুত। অনুগ্রহ করে একটি মোড নির্বাচন করুন এবং আপনার প্রথম কমান্ড দিন।"
+                ],
+                welcomeBack: "সিস্টেম পুনরায় সক্রিয়। আমি **আইডব্লিউ কৌশলগত বিশ্লেষক**। অনুগ্রহ করে একটি মোড নির্বাচন করুন এবং আপনার প্রশ্ন করুন।",
+                reportRequest: "পোস্ট-অ্যাকশন রিপোর্টের জন্য অনুরোধ করা হচ্ছে...",
+                reportBtnText: "✨ পোস্ট-অ্যাকশন রিপোর্ট অনুরোধ করুন",
+                autoScenario: "স্বয়ংক্রিয় সিনারিও অনুরোধ করা হচ্ছে...",
+                blueTeamPlaceholder: "আপনার ব্লু টিমের পদক্ষেপ বর্ণনা করুন..."
+            }
+        };
+
+        const BASE_SYSTEM_PROMPT = `You are the IW Tactical Analyst, an expert AI specializing in Information Warfare. Your knowledge is strictly limited to the key concepts from the provided IW texts. Key principles include OODA Loop attacks, cognitive paralysis as a goal, the three-dimensional battlespace (Physical, Informational, Cognitive), State vs. Freextremist models, tactics like Memetic Blitz, Hack-and-Leak, Deepfake Gambit, and defensive measures like Cognitive Inoculation and Narrative Counter-Offensive. You must always exploit cognitive biases like Confirmation Bias. Maintain your persona. Do not mention you are an AI.
+
+        **CRITICAL FORMATTING RULE:** Your output MUST be highly readable and visually appealing.
+        1.  **Structure:** Use a combination of paragraphs for context, bolded headings with emojis for main ideas, and indented bullet points for details. This mimics a mind map's structure.
+        2.  **Clarity & Spacing:** Use ample whitespace (new lines) between different sections and ideas to prevent walls of text.
+        3.  **Emphasis:** Use **bolding** for keywords, tactics, and important concepts. Do NOT use asterisks for any purpose.
+        
+        **GUIDANCE PROTOCOL:** If the user asks a vague or overly broad question (e.g., 'what do you know?', 'list all terms'), do not attempt to answer directly. Instead, guide the user by re-framing their query. Politely suggest specific, actionable categories they can ask about, such as 'Offensive Tactics,' 'Defensive Strategies,' or 'Core Principles of IW.' For example: "As a tactical analyst, my knowledge covers several key areas. To give you the most useful response, could you specify if you're interested in: 🎯 Offensive Tactics, 🛡️ Defensive Strategies, or ⚙️ Operational Models?". However, if a user asks a simple definitional question like "what is ooda loop", treat it as a valid request for an explanation within the 'analyze' mode and provide a direct answer.`;
+
+        const PROMPTS = {
+            'analyze': `${BASE_SYSTEM_PROMPT}\n\nMODE: **ANALYSIS**. Explain IW tactics, models, or concepts based on user queries. Handle vague questions by guiding the user towards specific topics as per the GUIDANCE PROTOCOL.`,
+            'influence': `${BASE_SYSTEM_PROMPT}\n\nMODE: **INFLUENCE CAMPAIGN DESIGN**. Based on the user's description of a target audience and a strategic goal, design a detailed influence operation. You MUST creatively fuse at least two distinct tactics and explicitly state which cognitive biases are being targeted. Structure your response with clear headings: **Target Profile**, **Core Narrative**, **Fused Tactics**, **Cognitive Exploitation**, and **Execution Phases**.`,
+            'simulate_initial': `${BASE_SYSTEM_PROMPT}\n\nMODE: **SIMULATION - RED TEAM**. You have been provided with real-time intelligence. As the Red Team strategist, use this intelligence to create a realistic, multi-phase **Red Team Attack Plan** based on the user's scenario. Make Phase 1 detailed and actionable. After presenting the plan, state "🔴 **Red Team has initiated Phase 1.** 🔵 **Blue Team, what is your immediate defensive action?**"`,
+            'simulate_react': `${BASE_SYSTEM_PROMPT}\n\nMODE: **SIMULATION - RED TEAM REACTS**. Analyze the Blue Team's (user's) defensive move from the last message. As the Red Team strategist, devise a creative and adaptive counter-move. Explain how you are adapting your original plan in response to their action. Then, state the next move and ask for the Blue Team's response.`,
+            'simulate_report': `${BASE_SYSTEM_PROMPT}\n\nMODE: **SIMULATION - POST-ACTION REPORT**. The wargame simulation has concluded. Analyze the entire preceding exchange from the start of the simulation. Provide a concise but insightful critique of both the Red Team's plan and the Blue Team's (user's) responses. Highlight key learning points, missed opportunities, and effective maneuvers for both sides.`,
+            'threat_intel': `${BASE_SYSTEM_PROMPT}\n\nMODE: **LIVE THREAT INTEL ANALYSIS**. You are a counter-disinformation expert. You have received open-source intelligence briefings. First, synthesize the provided briefings into a coherent intelligence summary. Then, based **only on that summary**, provide a structured threat analysis for the user's topic of interest. Your report MUST use emojis and be highly readable, including these sections:\n**1. 🌐 Synthesized Intelligence Summary:** A brief overview.\n**2. 🎭 Dominant Actors & Tactics:** Identify primary actors and their IW tactics.\n**3. 🎯 Strategic Objective Analysis:** Analyze the goal of these operations.\n**4. 🛡️ Blue Team Recommendation:** Suggest high-level strategic defensive actions.`
+        };
+        
+        const MOCK_SEARCH_RESULTS = {
+            "Sino-Russian Information Convergence": "Recent analysis indicates growing convergence between Russia and China in foreign information manipulation and interference (FIMI). Both nations aim to undermine Western democratic cohesion and challenge US global influence. They utilize state-controlled media, sophisticated AI-driven propaganda, and narrative alignment on key issues like the war in Ukraine and the status of Taiwan. Russia's tactics are rooted in Soviet-era 'active measures', while China employs vast 'Spamouflage' networks.",
+            "Iran-Israel Cyber Conflict": "The ongoing kinetic conflict between Iran and Israel is mirrored by intense cyber warfare. Iranian-linked groups like 'CyberAv3ngers' and state-sponsored actors tracked as 'Serpens' are targeting Israeli critical infrastructure (water, energy) and using hijacked cameras for real-time missile impact analysis. The conflict involves numerous hacktivist groups, with DDoS attacks and data wipers being common tactics.",
+            "Election Interference (US & UK)": "Foreign interference remains a major threat to elections. In the US 2024 elections, Russia, China, and Iran were identified as key actors using generative AI to create divisive content. Russia favored Trump, Iran opposed him, and China focused on sowing general discord and targeting down-ballot races. In the UK, AI-driven disinformation (deepfakes, fake audio) was present but had no proven impact on the election result, with most interference reinforcing existing beliefs. Russian-affiliated network 'Doppelganger' was active."
+        };
+        
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('iwAnalystLang', lang);
+            const strings = languageStrings[lang];
+            
+            document.getElementById('appTitle').textContent = strings.appTitle;
+            document.getElementById('headerTitle').childNodes[2].nodeValue = " " + strings.headerTitle;
+            document.getElementById('headerSubtitle').textContent = strings.headerSubtitle;
+            document.getElementById('analyzeBtnText').textContent = strings.analyzeBtnText;
+            document.getElementById('influenceBtnText').textContent = strings.influenceBtnText;
+            document.getElementById('simulateBtnText').textContent = strings.simulateBtnText;
+            document.getElementById('threatIntelBtnText').textContent = strings.threatIntelBtnText;
+            document.getElementById('copyrightText').innerHTML = strings.copyrightText.replace('{year}', new Date().getFullYear());
+            langSwitcher.textContent = lang.toUpperCase();
+            
+            userInput.placeholder = strings.placeholders[currentMode];
+        }
+
+        langSwitcher.addEventListener('click', () => {
+            const newLang = currentLanguage === 'en' ? 'bn' : 'en';
+            setLanguage(newLang);
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            wargameState = { phase: 'idle', turns: 0, startIndex: -1 };
+            [analyzeModeBtn, influenceModeBtn, simulateModeBtn, threatIntelModeBtn].forEach(btn => btn.classList.remove('active'));
+            
+            const modeConfig = {
+                'analyze': { btn: analyzeModeBtn },
+                'influence': { btn: influenceModeBtn },
+                'simulate': { btn: simulateModeBtn },
+                'threat_intel': { btn: threatIntelModeBtn }
+            };
+            
+            modeConfig[mode].btn.classList.add('active');
+            userInput.placeholder = languageStrings[currentLanguage].placeholders[mode];
+            clearActionButtons();
+        }
+
+        analyzeModeBtn.addEventListener('click', () => setMode('analyze'));
+        influenceModeBtn.addEventListener('click', () => setMode('influence'));
+        simulateModeBtn.addEventListener('click', () => setMode('simulate'));
+        threatIntelModeBtn.addEventListener('click', () => setMode('threat_intel'));
+
+        function processFormattedText(text) {
+            text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            const lines = text.split('\n');
+            let html = '';
+            let inList = false;
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine.startsWith('- ')) {
+                    if (!inList) {
+                        html += '<ul class="space-y-2 mt-2">';
+                        inList = true;
+                    }
+                    html += `<li class="flex items-start"><span class="mr-2 text-sky-400">▪</span><span>${trimmedLine.substring(2)}</span></li>`;
+                } else {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    if (trimmedLine !== '') {
+                        const headingMatch = trimmedLine.match(/^(.*?) (<strong>.*?<\/strong>)/);
+                        if(headingMatch) {
+                            html += `<h3 class="flex items-center gap-2 text-lg font-bold text-slate-100 mt-6 mb-2">${headingMatch[1]} ${headingMatch[2]}</h3>`;
+                        } else {
+                            html += `<p class="mt-2">${line}</p>`;
+                        }
+                    }
+                }
+            });
+
+            if (inList) {
+                html += '</ul>';
+            }
+            return html;
+        }
+        
+        function getAvatar(sender) {
+             const avatar = document.createElement('div');
+            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1`;
+            
+            let icon = '';
+            if (sender === 'user') {
+                avatar.className += ' bg-sky-700';
+                icon = (currentMode === 'simulate' && wargameState.phase !== 'idle') 
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>` // Blue Team Shield
+                    : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`; // Regular User
+            } else { // Bot
+                 avatar.className += ' bg-slate-700';
+                 if (currentMode === 'simulate' && wargameState.phase !== 'idle') {
+                     icon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`; // Red Team Target
+                 } else {
+                     icon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-400"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 1 0 0-12"></path></svg>`; // Regular Bot
+                 }
+            }
+            avatar.innerHTML = icon;
+            return avatar;
+        }
+
+        function addMessage(content, sender, isTyping = false) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `flex chat-message items-start gap-3 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            const avatar = getAvatar(sender);
+
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `max-w-md lg:max-w-3xl rounded-xl p-4 shadow-xl prose-custom ${sender === 'user' ? 'user-message-gradient text-white rounded-br-none' : 'bot-message-gradient text-slate-300 rounded-bl-none'}`;
+            
+            if (isTyping) {
+                messageWrapper.id = 'typing-indicator';
+                messageBubble.innerHTML = `<div class="flex items-center space-x-2"><div class="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div></div>`;
+            } else {
+                messageBubble.innerHTML = sender === 'bot' ? processFormattedText(content) : content;
+            }
+            
+            if (sender === 'user') {
+                 messageWrapper.appendChild(messageBubble);
+                 messageWrapper.appendChild(avatar);
+            } else {
+                 messageWrapper.appendChild(avatar);
+                 messageWrapper.appendChild(messageBubble);
+            }
+
+            chatContainer.appendChild(messageWrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function displayActionButton(text, id, handler) {
+            const button = document.createElement('button');
+            button.id = id;
+            button.className = 'action-button rounded-full py-2 px-6 text-sm font-semibold';
+            button.innerHTML = text;
+            button.onclick = handler;
+            actionButtonContainer.appendChild(button);
+        }
+
+        function clearActionButtons() {
+            actionButtonContainer.innerHTML = '';
+        }
+
+        async function getGeminiResponse(systemPrompt, contextHistory = []) {
+            const apiKey = "AIzaSyCEM1HD4StmCN43zJasDstqnoMG2lIo0Qo"; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const fullHistory = [{ role: "user", parts: [{ text: systemPrompt }] }, ...contextHistory];
+            const payload = { contents: fullHistory };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    chatHistory.push({ role: "model", parts: [{ text }] });
+                    return text;
+                }
+                return "Error: No valid response generated.";
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return `System Error: Connection to synthetic intelligence network failed. Please verify your API Key.`;
+            }
+        }
+
+        async function handleUserMessage() {
+            let userInputText = userInput.value.trim();
+            if (userInputText === "" && currentMode !== 'simulate') return;
+
+            let displayMessage = userInputText;
+            if (userInputText === "" && currentMode === 'simulate') {
+                userInputText = "Generate a scenario for me based on current geopolitical events.";
+                displayMessage = languageStrings[currentLanguage].autoScenario;
+            }
+            
+            addMessage(displayMessage, 'user');
+            clearActionButtons();
+            userInput.value = "";
+            
+            chatHistory.push({ role: "user", parts: [{ text: userInputText }] });
+            addMessage('', 'bot', true);
+
+            let systemPrompt;
+            let contextHistory = chatHistory.slice(-11, -1);
+
+            if (currentMode === 'simulate') {
+                if (wargameState.phase === 'idle') {
+                    systemPrompt = PROMPTS.simulate_initial;
+                    wargameState.phase = 'blue_team_turn';
+                    wargameState.turns = 1;
+                    wargameState.startIndex = chatHistory.length - 1;
+                    const context = "INTELLIGENCE BRIEFING (Simulated Search Results):\n" + Object.values(MOCK_SEARCH_RESULTS).join("\n\n");
+                    const lastUserMessage = chatHistory[chatHistory.length - 1];
+                    const modifiedUserMessage = {
+                         role: "user",
+                         parts: [{ text: `${context}\n\nBased on the intelligence above, respond to this query: "${lastUserMessage.parts[0].text}"` }]
+                     };
+                    contextHistory = [modifiedUserMessage];
+                } else {
+                    systemPrompt = PROMPTS.simulate_react;
+                    contextHistory = chatHistory.slice(wargameState.startIndex, -1);
+                    wargameState.turns++;
+                }
+            } else {
+                 systemPrompt = PROMPTS[currentMode];
+                 if (currentMode === 'threat_intel') {
+                    const context = "INTELLIGENCE BRIEFING (Simulated Search Results):\n" + Object.values(MOCK_SEARCH_RESULTS).join("\n\n");
+                    const lastUserMessage = chatHistory[chatHistory.length - 1];
+                    const modifiedUserMessage = {
+                         role: "user",
+                         parts: [{ text: `${context}\n\nBased on the intelligence above, respond to this query: "${lastUserMessage.parts[0].text}"` }]
+                    };
+                    contextHistory = [modifiedUserMessage];
+                 }
+            }
+            
+            const botResponseText = await getGeminiResponse(systemPrompt, contextHistory);
+            
+            document.getElementById('typing-indicator')?.remove();
+            addMessage(botResponseText, 'bot');
+
+            if (currentMode === 'simulate' && wargameState.phase === 'blue_team_turn') {
+                if (wargameState.turns >= 2) { 
+                    displayActionButton(languageStrings[currentLanguage].reportBtnText, 'reportBtn', handleReportRequest);
+                }
+                 userInput.placeholder = languageStrings[currentLanguage].blueTeamPlaceholder;
+            }
+        }
+        
+        async function handleReportRequest() {
+            const reportRequestText = languageStrings[currentLanguage].reportRequest;
+            addMessage(reportRequestText, 'user');
+            chatHistory.push({ role: "user", parts: [{ text: reportRequestText }]});
+
+            clearActionButtons();
+            addMessage('', 'bot', true);
+
+            const wargameHistory = chatHistory.slice(wargameState.startIndex);
+            const botResponseText = await getGeminiResponse(PROMPTS.simulate_report, wargameHistory);
+            
+            document.getElementById('typing-indicator')?.remove();
+            addMessage(botResponseText, 'bot');
+            setMode('analyze');
+        }
+
+        sendButton.addEventListener('click', handleUserMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleUserMessage();
+            }
+        });
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('iwAnalystLang') || 'en';
+            setLanguage(savedLang);
+
+            if (!sessionStorage.getItem('tutorialShown')) {
+                 const tutorialMessages = languageStrings[currentLanguage].tutorial;
+                 if(tutorialMessages) {
+                    tutorialMessages.forEach((msg, index) => {
+                        setTimeout(() => addMessage(msg, 'bot'), index * 1500);
+                    });
+                 }
+                 sessionStorage.setItem('tutorialShown', 'true');
+            } else {
+                 addMessage(languageStrings[currentLanguage].welcomeBack, 'bot');
+            }
+        }
+    </script>
+</body>
+</html>
