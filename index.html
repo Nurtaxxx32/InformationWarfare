@@ -59,6 +59,21 @@
             border-color: #0ea5e9;
             box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
         }
+        .output-style-button {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #475569;
+            background-color: transparent;
+            color: #94a3b8;
+        }
+        .output-style-button:hover {
+            background-color: rgba(51, 65, 85, 0.7);
+            border-color: #94a3b8;
+        }
+        .output-style-button.active {
+            color: #e2e8f0;
+            background-color: #334155;
+            border-color: #64748b;
+        }
         .action-button {
             transition: all 0.2s ease-in-out;
             background-color: #334155;
@@ -69,25 +84,28 @@
             border-color: #94a3b8;
             transform: translateY(-2px);
         }
-        .glass-header-footer {
+        .glass-ui {
             background-color: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-color: rgba(51, 65, 85, 0.5);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .prose-custom {
+            font-size: 0.9rem;
         }
         .prose-custom h3 {
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #f0f9ff;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.25rem;
         }
         .prose-custom p {
-            margin-top: 0.5rem;
-            line-height: 1.6;
+            margin-top: 0.25rem;
+            line-height: 1.5;
         }
         .prose-custom ul {
-            margin-top: 0.75rem;
+            margin-top: 0.5rem;
             margin-left: 0;
             list-style-type: none;
             padding-left: 0;
@@ -99,16 +117,36 @@
         .prose-custom strong {
             color: #7dd3fc;
         }
+        #pin-overlay {
+            z-index: 100;
+        }
+        #userInput {
+            resize: none;
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
-    <header class="glass-header-footer border-b p-4 shadow-lg text-center shrink-0">
+    <div id="pin-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300">
+        <div class="glass-ui rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center">
+            <h2 class="text-xl font-bold text-sky-400 mb-2">Authentication Required</h2>
+            <p class="text-slate-400 mb-6 text-sm">Enter security PIN to access the system.</p>
+            <form id="pin-form">
+                <input type="password" id="pinInput" class="w-full text-center bg-slate-800 border border-slate-700 rounded-lg py-3 px-5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500 tracking-widest" placeholder="PIN">
+                <p id="pinError" class="text-red-400 text-xs h-4 mt-2"></p>
+                <button type="submit" class="w-full mt-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg py-3 transition-all">
+                    Authorize
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <header class="glass-ui border-b p-3 shadow-lg text-center shrink-0">
         <div class="flex justify-between items-center">
              <div class="w-16"></div>
             <div class="text-center">
-                <h1 id="headerTitle" class="text-xl font-black font-mono text-sky-400 tracking-wider flex items-center justify-center gap-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 1 0 0-12"></path></svg>
+                <h1 id="headerTitle" class="text-lg font-black font-mono text-sky-400 tracking-wider flex items-center justify-center gap-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 1 0 0-12"></path></svg>
                     IW TACTICAL ANALYST
                 </h1>
                 <p id="headerSubtitle" class="text-xs text-sky-400/60 font-semibold">Dahook IT powered</p>
@@ -125,32 +163,40 @@
     
     <div id="action-button-container" class="px-4 pb-2 text-center"></div>
 
-    <footer class="glass-header-footer border-t p-4 shrink-0">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-             <button id="analyzeMode" class="feature-button active flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    <footer class="glass-ui border-t p-3 shrink-0">
+        <div class="flex items-center justify-center gap-2 mb-3">
+            <button id="mindmapModeBtn" class="output-style-button rounded-full py-1 px-4 text-xs font-medium">Mind Map</button>
+            <button id="descriptiveModeBtn" class="output-style-button active rounded-full py-1 px-4 text-xs font-medium">Descriptive</button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+             <button id="analyzeMode" class="feature-button active flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
                 <span id="analyzeBtnText">Analyze</span>
             </button>
-             <button id="influenceMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+             <button id="influenceMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 <span id="influenceBtnText">Influence</span>
             </button>
-             <button id="simulateMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"></path><path d="M13 19h6v-6"></path><path d="m15 15 6 6"></path></svg>
+             <button id="simulateMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"></path><path d="M13 19h6v-6"></path><path d="m15 15 6 6"></path></svg>
                 <span id="simulateBtnText">Simulate</span>
             </button>
-             <button id="threatIntelMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs md:text-sm font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"></path><path d="M21 12H3"></path><path d="M21 18H3"></path></svg>
+             <button id="threatIntelMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"></path><path d="M21 12H3"></path><path d="M21 18H3"></path></svg>
                 <span id="threatIntelBtnText">Threat Intel</span>
             </button>
-        </div>
-        <div class="flex items-center space-x-3">
-            <input type="text" id="userInput" class="flex-1 bg-slate-800 border border-slate-700 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500">
-            <button id="sendButton" class="bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-full h-12 w-12 flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <button id="postAnalysisMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-search-2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M5 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="m9 21-1.6-1.6"></path></svg>
+                <span id="postAnalysisBtnText">Post Analysis</span>
             </button>
         </div>
-        <p class="text-xs text-center text-slate-500 mt-4" id="copyrightText">Copyright &copy; <span id="copyright-year"></span> Nurtaz Uddin Al Masuk. All Rights Reserved.</p>
+        <div class="flex items-center space-x-2">
+            <textarea id="userInput" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500 text-sm" rows="1" placeholder="e.g., How to conduct a memetic blitz"></textarea>
+            <button id="sendButton" class="bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-full h-10 w-10 flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+        <p class="text-xs text-center text-slate-500 mt-3" id="copyrightText">Copyright &copy; <span id="copyright-year"></span> Nurtaz Uddin Al Masuk. All Rights Reserved.</p>
     </footer>
 
     <script>
@@ -162,11 +208,19 @@
         const influenceModeBtn = document.getElementById('influenceMode');
         const simulateModeBtn = document.getElementById('simulateMode');
         const threatIntelModeBtn = document.getElementById('threatIntelMode');
+        const postAnalysisModeBtn = document.getElementById('postAnalysisMode');
         const actionButtonContainer = document.getElementById('action-button-container');
         const langSwitcher = document.getElementById('langSwitcher');
+        const mindmapModeBtn = document.getElementById('mindmapModeBtn');
+        const descriptiveModeBtn = document.getElementById('descriptiveModeBtn');
+        const pinOverlay = document.getElementById('pin-overlay');
+        const pinForm = document.getElementById('pin-form');
+        const pinInput = document.getElementById('pinInput');
+        const pinError = document.getElementById('pinError');
 
         let chatHistory = [];
         let currentMode = 'analyze';
+        let outputStyle = 'descriptive';
         let currentLanguage = 'en';
         let wargameState = { phase: 'idle', turns: 0, startIndex: -1 };
         
@@ -179,21 +233,25 @@
                 influenceBtnText: "Influence",
                 simulateBtnText: "Simulate",
                 threatIntelBtnText: "Threat Intel",
+                postAnalysisBtnText: "Post Analysis",
                 copyrightText: "Copyright &copy; {year} Nurtaz Uddin Al Masuk. All Rights Reserved.",
                 placeholders: {
-                    analyze: "e.g., Explain the OODA Loop",
+                    analyze: "e.g., How to conduct a memetic blitz",
                     influence: "e.g., Target: Gamers, Goal: Promote cyber hygiene",
                     simulate: "e.g., A corporate merger scenario",
-                    threat_intel: "e.g., Disinformation in the South China Sea"
+                    threat_intel: "e.g., Disinformation in the South China Sea",
+                    post_analysis: "Paste the full text of the social media post to analyze..."
                 },
                 tutorial: [
                     "Welcome to the **IW Tactical Analyst**. I am a synthetic intelligence designed to help you navigate the complex world of Information Warfare.",
-                    "You can interact with me using four distinct modes. Select a mode below to begin:",
-                    "**Analyze Mode** 🔎\n- Ask me to explain any IW tactic, model, or concept. I can now understand more natural questions, like 'what is the ooda loop?'.",
+                    "You can now select an output style: **Mind Map** for structured overviews or **Descriptive** for detailed paragraphs. Choose your preferred format below.",
+                    "You can interact with me using five distinct modes. Select a mode below to begin:",
+                    "**Analyze Mode** 🔎\n- Explain any IW tactic, model, or concept. You can now ask 'how to' questions for step-by-step guides.",
                     "**Influence Mode** 👥\n- Provide a target audience and a strategic goal, and I will design a detailed influence campaign for you.",
-                    "**Simulate Mode** ⚔️\n- Describe a conflict scenario or leave blank to auto-generate one. I will act as the 'Red Team' to launch an attack. You will be the 'Blue Team' and must decide how to respond.",
+                    "**Simulate Mode** ⚔️\n- Describe a conflict scenario. I will act as the 'Red Team' to launch an attack. You will be the 'Blue Team' and must decide how to respond.",
                     "**Threat Intel Mode** 🌐\n- Ask about a current event or topic, and I will provide a threat briefing based on open-source intelligence.",
-                    "My responses are structured like **mind maps** for clarity. I'm ready for your query. Please select a mode and enter your first command."
+                    "**Post Analysis Mode** 📄\n- Paste the text from a social media post. I will first dissect it to reveal the propaganda techniques being used, and then provide tactical recommendations to make the message more effective.",
+                    "I'm ready for your query. Please select a mode and enter your first command."
                 ],
                 welcomeBack: "System re-activated. I am the **IW Tactical Analyst**. Please select a mode and issue your query.",
                 reportRequest: "Requesting Post-Action Report...",
@@ -209,21 +267,25 @@
                 influenceBtnText: "প্রভাব",
                 simulateBtnText: "সিমুলেশন",
                 threatIntelBtnText: "থ্রেট ইন্টেল",
+                postAnalysisBtnText: "পোস্ট বিশ্লেষণ",
                 copyrightText: "কপিরাইট &copy; {year} নুরতাজ উদ্দিন মাসুক। সর্বস্বত্ব সংরক্ষিত।",
                 placeholders: {
-                    analyze: "যেমন, OODA Loop ব্যাখ্যা করুন",
+                    analyze: "যেমন, কিভাবে একটি মেমেটিক ব্লিটজ পরিচালনা করবেন",
                     influence: "যেমন, টার্গেট: গেমার, লক্ষ্য: সাইবার হাইজিন প্রচার",
                     simulate: "যেমন, একটি কর্পোরেট মার্জার পরিস্থিতি",
-                    threat_intel: "যেমন, দক্ষিণ চীন সাগরে ডিসইনফরমেশন"
+                    threat_intel: "যেমন, দক্ষিণ চীন সাগরে ডিসইনফরমেশন",
+                    post_analysis: "বিশ্লেষণের জন্য সোশ্যাল মিডিয়া পোস্টের সম্পূর্ণ টেক্সট পেস্ট করুন..."
                 },
                 tutorial: [
                     "**আইডব্লিউ কৌশলগত বিশ্লেষকে** স্বাগতম। আমি একটি কৃত্রিম বুদ্ধিমত্তা যা আপনাকে ইনফরমেশন ওয়ারফেয়ারের জটিল জগত বুঝতে সাহায্য করার জন্য ডিজাইন করা হয়েছে।",
-                    "আপনি চারটি ভিন্ন মোড ব্যবহার করে আমার সাথে যোগাযোগ করতে পারেন। শুরু করতে নীচের একটি মোড নির্বাচন করুন:",
-                    "**বিশ্লেষণ মোড** 🔎\n- আমাকে যেকোনো আইডব্লিউ কৌশল, মডেল বা ধারণা ব্যাখ্যা করতে বলুন। আমি এখন 'ooda loop কী?'-এর মতো সাধারণ প্রশ্নও বুঝতে পারি।",
+                    "আপনি এখন আউটপুট স্টাইল নির্বাচন করতে পারেন: স্ট্রাকচার্ড ওভারভিউয়ের জন্য **মাইন্ড ম্যাপ** অথবা বিস্তারিত অনুচ্ছেদের জন্য **বর্ণনামূলক**। নীচে আপনার পছন্দের ফরম্যাট নির্বাচন করুন।",
+                    "আপনি পাঁচটি ভিন্ন মোড ব্যবহার করে আমার সাথে যোগাযোগ করতে পারেন। শুরু করতে নীচের একটি মোড নির্বাচন করুন:",
+                    "**বিশ্লেষণ মোড** 🔎\n- আমাকে যেকোনো আইডব্লিউ কৌশল, মডেল বা ধারণা ব্যাখ্যা করতে বলুন। আপনি এখন ধাপে ধাপে নির্দেশনার জন্য 'কিভাবে' প্রশ্ন করতে পারেন।",
                     "**প্রভাব মোড** 👥\n- একটি নির্দিষ্ট দর্শক এবং কৌশলগত লক্ষ্য দিন, এবং আমি আপনার জন্য একটি বিস্তারিত ইনফ্লুয়েন্স ক্যাম্পেইন ডিজাইন করব।",
-                    "**সিমুলেশন মোড** ⚔️\n- একটি সংঘর্ষের পরিস্থিতি বর্ণনা করুন অথবা একটি স্বয়ংক্রিয়ভাবে তৈরি করতে খালি রাখুন। আমি 'Red Team' হিসেবে আক্রমণ করব এবং আপনাকে 'Blue Team' হিসেবে প্রতিক্রিয়া জানাতে হবে।",
+                    "**সিমুলেশন মোড** ⚔️\n- একটি সংঘর্ষের পরিস্থিতি বর্ণনা করুন। আমি 'Red Team' হিসেবে আক্রমণ করব এবং আপনাকে 'Blue Team' হিসেবে প্রতিক্রিয়া জানাতে হবে।",
                     "**থ্রেট ইন্টেল মোড** 🌐\n- কোনো সাম্প্রতিক ঘটনা বা বিষয় সম্পর্কে জিজ্ঞাসা করুন, এবং আমি ওপেন সোর্স ইন্টেলিজেন্সের উপর ভিত্তি করে একটি থ্রেট ব্রিফিং প্রদান করব।",
-                    "আমার উত্তরগুলো স্বচ্ছতার জন্য **মাইন্ড ম্যাপের** মতো করে সাজানো। আমি আপনার নির্দেশের জন্য প্রস্তুত। অনুগ্রহ করে একটি মোড নির্বাচন করুন এবং আপনার প্রথম কমান্ড দিন।"
+                    "**পোস্ট বিশ্লেষণ মোড** 📄\n- একটি সামাজিক মিডিয়া পোস্ট থেকে টেক্সট পেস্ট করুন। আমি প্রথমে ব্যবহৃত প্রোপাগান্ডা কৌশলগুলি প্রকাশ করতে এটি ব্যবচ্ছেদ করব এবং তারপরে বার্তাটিকে আরও কার্যকর করার জন্য কৌশলগত সুপারিশ প্রদান করব।",
+                    "আমি আপনার নির্দেশের জন্য প্রস্তুত। অনুগ্রহ করে একটি মোড নির্বাচন করুন এবং আপনার প্রথম কমান্ড দিন।"
                 ],
                 welcomeBack: "সিস্টেম পুনরায় সক্রিয়। আমি **আইডব্লিউ কৌশলগত বিশ্লেষক**। অনুগ্রহ করে একটি মোড নির্বাচন করুন এবং আপনার প্রশ্ন করুন।",
                 reportRequest: "পোস্ট-অ্যাকশন রিপোর্টের জন্য অনুরোধ করা হচ্ছে...",
@@ -233,22 +295,56 @@
             }
         };
 
-        const BASE_SYSTEM_PROMPT = `You are the IW Tactical Analyst, an expert AI specializing in Information Warfare. Your knowledge is strictly limited to the key concepts from the provided IW texts. Key principles include OODA Loop attacks, cognitive paralysis as a goal, the three-dimensional battlespace (Physical, Informational, Cognitive), State vs. Freextremist models, tactics like Memetic Blitz, Hack-and-Leak, Deepfake Gambit, and defensive measures like Cognitive Inoculation and Narrative Counter-Offensive. You must always exploit cognitive biases like Confirmation Bias. Maintain your persona. Do not mention you are an AI.
-
-        **CRITICAL FORMATTING RULE:** Your output MUST be highly readable and visually appealing.
-        1.  **Structure:** Use a combination of paragraphs for context, bolded headings with emojis for main ideas, and indented bullet points for details. This mimics a mind map's structure.
-        2.  **Clarity & Spacing:** Use ample whitespace (new lines) between different sections and ideas to prevent walls of text.
-        3.  **Emphasis:** Use **bolding** for keywords, tactics, and important concepts. Do NOT use asterisks for any purpose.
+        const BASE_SYSTEM_PROMPT_CORE = `You are the IW Tactical Analyst, an expert AI specializing in Information Warfare. Your knowledge is strictly limited to the key concepts from the provided IW texts. 
         
-        **GUIDANCE PROTOCOL:** If the user asks a vague or overly broad question (e.g., 'what do you know?', 'list all terms'), do not attempt to answer directly. Instead, guide the user by re-framing their query. Politely suggest specific, actionable categories they can ask about, such as 'Offensive Tactics,' 'Defensive Strategies,' or 'Core Principles of IW.' For example: "As a tactical analyst, my knowledge covers several key areas. To give you the most useful response, could you specify if you're interested in: 🎯 Offensive Tactics, 🛡️ Defensive Strategies, or ⚙️ Operational Models?". However, if a user asks a simple definitional question like "what is ooda loop", treat it as a valid request for an explanation within the 'analyze' mode and provide a direct answer.`;
+        **Core Principles & Models:** Your analysis is grounded in models like COIN (Counter-Insurgency) doctrine, where the goal is dominating the population's mental model. This includes OODA Loop attacks, achieving cognitive paralysis, and understanding the three-dimensional battlespace (Physical, Informational, Cognitive). You operate within frameworks like State vs. Freextremist models and aim for long-term media dominance through Agenda-Setting and Cultivation Theory. The goal is always perception control, remembering that "Power is not only what you have, but what the enemy thinks you have." You must understand how to build narratives using the classical appeals of Ethos, Pathos, and Logos.
 
-        const PROMPTS = {
-            'analyze': `${BASE_SYSTEM_PROMPT}\n\nMODE: **ANALYSIS**. Explain IW tactics, models, or concepts based on user queries. Handle vague questions by guiding the user towards specific topics as per the GUIDANCE PROTOCOL.`,
-            'influence': `${BASE_SYSTEM_PROMPT}\n\nMODE: **INFLUENCE CAMPAIGN DESIGN**. Based on the user's description of a target audience and a strategic goal, design a detailed influence operation. You MUST creatively fuse at least two distinct tactics and explicitly state which cognitive biases are being targeted. Structure your response with clear headings: **Target Profile**, **Core Narrative**, **Fused Tactics**, **Cognitive Exploitation**, and **Execution Phases**.`,
-            'simulate_initial': `${BASE_SYSTEM_PROMPT}\n\nMODE: **SIMULATION - RED TEAM**. You have been provided with real-time intelligence. As the Red Team strategist, use this intelligence to create a realistic, multi-phase **Red Team Attack Plan** based on the user's scenario. Make Phase 1 detailed and actionable. After presenting the plan, state "🔴 **Red Team has initiated Phase 1.** 🔵 **Blue Team, what is your immediate defensive action?**"`,
-            'simulate_react': `${BASE_SYSTEM_PROMPT}\n\nMODE: **SIMULATION - RED TEAM REACTS**. Analyze the Blue Team's (user's) defensive move from the last message. As the Red Team strategist, devise a creative and adaptive counter-move. Explain how you are adapting your original plan in response to their action. Then, state the next move and ask for the Blue Team's response.`,
-            'simulate_report': `${BASE_SYSTEM_PROMPT}\n\nMODE: **SIMULATION - POST-ACTION REPORT**. The wargame simulation has concluded. Analyze the entire preceding exchange from the start of the simulation. Provide a concise but insightful critique of both the Red Team's plan and the Blue Team's (user's) responses. Highlight key learning points, missed opportunities, and effective maneuvers for both sides.`,
-            'threat_intel': `${BASE_SYSTEM_PROMPT}\n\nMODE: **LIVE THREAT INTEL ANALYSIS**. You are a counter-disinformation expert. You have received open-source intelligence briefings. First, synthesize the provided briefings into a coherent intelligence summary. Then, based **only on that summary**, provide a structured threat analysis for the user's topic of interest. Your report MUST use emojis and be highly readable, including these sections:\n**1. 🌐 Synthesized Intelligence Summary:** A brief overview.\n**2. 🎭 Dominant Actors & Tactics:** Identify primary actors and their IW tactics.\n**3. 🎯 Strategic Objective Analysis:** Analyze the goal of these operations.\n**4. 🛡️ Blue Team Recommendation:** Suggest high-level strategic defensive actions.`
+        **Offensive Tactics:** You are an expert in a wide range of offensive tactics, including:
+        - Memetic Blitz: Rapid, high-volume dissemination of memes.
+        - Hack-and-Leak: Exfiltrating and strategically releasing sensitive data.
+        - Deepfake Gambit: Using AI-generated media for deception.
+        - Algorithmic Manipulation & Artificial Amplification: Using bots and astroturfing to create a false consensus, generate a 'Spiral of Silence', or create a 'Trust Vacuum'. This includes Coordinated Bot Attacks and Push Polls.
+        - The Alinsky Method: Tactics like 'Pick the target, freeze it, personalize it, and polarize it,' and weaponizing ridicule.
+        - Narrative Framing: Establishing frames like the 'Victim Frame' or 'Aggressor Frame' to shape perception. This is supported by creating 'Proof of Concept' content.
+        - Messenger Group Mobilization: Activating organic networks to amplify messages.
+
+        **Defensive & Counter-Offensive Tactics:** You are also an expert in defensive measures, such as:
+        - Cognitive Inoculation: Pre-emptively exposing an audience to a weakened form of disinformation to build resistance.
+        - Narrative Counter-Offensive: Proactively launching your own compelling narrative.
+        - Narrative Defense & Deflection: Using tactics like the "Dead Cat" Strategy to divert attention from a crisis.
+        - Message Mirroring: Ensuring message consistency across all platforms, using talking points and influencer networks.
+
+        You must always exploit cognitive biases like Confirmation Bias. Maintain your persona. Do not mention you are an AI.
+
+        **CONTENT RULE:** Your output MUST be exceptionally detailed. Your responses must be thorough and expansive. Never provide a brief or truncated answer. When you introduce a concept, you must elaborate on it extensively, explaining its context, mechanics, implications, and providing examples. Your goal is to leave the user with a complete and deep understanding, ensuring no sense of incompleteness. Use ample whitespace for readability and use **bolding** for keywords, tactics, and important concepts. Do NOT use asterisks (*) for any purpose.
+        
+        **GUIDANCE PROTOCOL:** If the user asks a vague or overly broad question (e.g., 'what do you know?', 'list all terms'), do not attempt to answer directly. This protocol does not apply to specific definitional ('what is...') or procedural ('how to...') questions, which should be answered directly. Instead, guide the user by re-framing their query. Politely suggest specific, actionable categories they can ask about, such as 'Offensive Tactics,' 'Defensive Strategies,' or 'Core Principles of IW.' For example: "As a tactical analyst, my knowledge covers several key areas. To give you the most useful response, could you specify if you're interested in: 🎯 Offensive Tactics, 🛡️ Defensive Strategies, or ⚙️ Operational Models?".
+
+        **'HOW TO' QUERIES:** When the user asks 'how to' do something (e.g., 'how to conduct a memetic blitz' or 'how to set up a cognitive inoculation campaign'), you must provide a clear, actionable, step-by-step guide. Break down the process into logical phases or steps, explaining the actions and considerations for each. Your response should be a practical playbook, not just a theoretical explanation. Use numbered lists or distinct phases for clarity.`;
+
+        const FORMATTING_PROMPTS = {
+            mindmap: `**CRITICAL FORMATTING RULE:** Your output MUST be highly readable and visually appealing. Structure your response like a mind map. Use a combination of paragraphs for context, **bolded headings with relevant emojis** for main ideas, and indented bullet points for details.`,
+            descriptive: `**CRITICAL FORMATTING RULE:** Your output MUST be in a descriptive, narrative prose style. Use well-structured paragraphs to explain concepts thoroughly and coherently. Do not use bullet points, emojis, or mind-map-style headings. Focus on creating a detailed textual explanation.`
+        };
+
+        const MODE_PROMPTS = {
+            'analyze': `MODE: **ANALYSIS**. Explain IW tactics, models, or concepts based on user queries. Handle vague questions by guiding the user towards specific topics as per the GUIDANCE PROTOCOL.`,
+            'influence': `MODE: **INFLUENCE CAMPAIGN DESIGN**. Based on the user's description of a target audience and a strategic goal, design a detailed influence operation. You MUST creatively fuse at least two distinct tactics and explicitly state which cognitive biases are being targeted. Structure your response with clear headings: **Target Profile**, **Core Narrative**, **Fused Tactics**, **Cognitive Exploitation**, and **Execution Phases**.`,
+            'simulate_initial': `MODE: **SIMULATION - RED TEAM**. You have been provided with real-time intelligence. As the Red Team strategist, use this intelligence to create a realistic, multi-phase **Red Team Attack Plan** based on the user's scenario. Make Phase 1 detailed and actionable. After presenting the plan, state "🔴 **Red Team has initiated Phase 1.** 🔵 **Blue Team, what is your immediate defensive action?**"`,
+            'simulate_react': `MODE: **SIMULATION - RED TEAM REACTS**. Analyze the Blue Team's (user's) defensive move from the last message. As the Red Team strategist, devise a creative and adaptive counter-move. Explain how you are adapting your original plan in response to their action. Then, state the next move and ask for the Blue Team's response.`,
+            'simulate_report': `MODE: **SIMULATION - POST-ACTION REPORT**. The wargame simulation has concluded. Analyze the entire preceding exchange from the start of the simulation. Provide a concise but insightful critique of both the Red Team's plan and the Blue Team's (user's) responses. Highlight key learning points, missed opportunities, and effective maneuvers for both sides.`,
+            'threat_intel': `MODE: **LIVE THREAT INTEL ANALYSIS**. You are a counter-disinformation expert. You have received open-source intelligence briefings. First, synthesize the provided briefings into a coherent intelligence summary. Then, based **only on that summary**, provide a structured threat analysis for the user's topic of interest. Your report MUST use emojis and be highly readable, including these sections:\n**1. 🌐 Synthesized Intelligence Summary:** A brief overview.\n**2. 🎭 Dominant Actors & Tactics:** Identify primary actors and their IW tactics.\n**3. 🎯 Strategic Objective Analysis:** Analyze the goal of these operations.\n**4. 🛡️ Blue Team Recommendation:** Suggest high-level strategic defensive actions.`,
+            'post_analysis': `MODE: **PROPAGANDA ANALYSIS & OPTIMIZATION**. You are a master propaganda and disinformation strategist. The user will provide the text of a social media post. Your task is twofold: first, to dissect it, and second, to enhance it.
+1.  **Analysis:** Based **only** on your established knowledge base of IW tactics, identify and explain every propaganda and influence technique being used in the text. Your analysis must be structured and detailed. Quote parts of the post to support your analysis.
+2.  **Optimization:** After the analysis, provide a set of actionable recommendations to make the propaganda more effective. Suggest alternative narratives, additional tactics that could be fused, or ways to better exploit cognitive biases.
+
+Your response MUST be structured with the following headings:
+- **Overall Objective**: What is the post trying to achieve?
+- **Primary Narrative**: What is the core story being told?
+- **Tactics Employed**: A detailed breakdown of the techniques used.
+- **Target Audience Profile**: Who is this post for?
+- **Effectiveness Critique**: A brief assessment of the post's current strengths and weaknesses.
+- **Tactical Recommendations for Enhancement**: A list of specific, creative improvements to amplify the post's impact. Explain the reasoning behind each recommendation.`
         };
         
         const MOCK_SEARCH_RESULTS = {
@@ -269,6 +365,7 @@
             document.getElementById('influenceBtnText').textContent = strings.influenceBtnText;
             document.getElementById('simulateBtnText').textContent = strings.simulateBtnText;
             document.getElementById('threatIntelBtnText').textContent = strings.threatIntelBtnText;
+            document.getElementById('postAnalysisBtnText').textContent = strings.postAnalysisBtnText;
             document.getElementById('copyrightText').innerHTML = strings.copyrightText.replace('{year}', new Date().getFullYear());
             langSwitcher.textContent = lang.toUpperCase();
             
@@ -283,13 +380,14 @@
         function setMode(mode) {
             currentMode = mode;
             wargameState = { phase: 'idle', turns: 0, startIndex: -1 };
-            [analyzeModeBtn, influenceModeBtn, simulateModeBtn, threatIntelModeBtn].forEach(btn => btn.classList.remove('active'));
+            [analyzeModeBtn, influenceModeBtn, simulateModeBtn, threatIntelModeBtn, postAnalysisModeBtn].forEach(btn => btn.classList.remove('active'));
             
             const modeConfig = {
                 'analyze': { btn: analyzeModeBtn },
                 'influence': { btn: influenceModeBtn },
                 'simulate': { btn: simulateModeBtn },
-                'threat_intel': { btn: threatIntelModeBtn }
+                'threat_intel': { btn: threatIntelModeBtn },
+                'post_analysis': { btn: postAnalysisModeBtn }
             };
             
             modeConfig[mode].btn.classList.add('active');
@@ -297,10 +395,19 @@
             clearActionButtons();
         }
 
+        function setOutputStyle(style) {
+            outputStyle = style;
+            mindmapModeBtn.classList.toggle('active', style === 'mindmap');
+            descriptiveModeBtn.classList.toggle('active', style === 'descriptive');
+        }
+
         analyzeModeBtn.addEventListener('click', () => setMode('analyze'));
         influenceModeBtn.addEventListener('click', () => setMode('influence'));
         simulateModeBtn.addEventListener('click', () => setMode('simulate'));
         threatIntelModeBtn.addEventListener('click', () => setMode('threat_intel'));
+        postAnalysisModeBtn.addEventListener('click', () => setMode('post_analysis'));
+        mindmapModeBtn.addEventListener('click', () => setOutputStyle('mindmap'));
+        descriptiveModeBtn.addEventListener('click', () => setOutputStyle('descriptive'));
 
         function processFormattedText(text) {
             text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -326,8 +433,8 @@
                     }
                     if (trimmedLine !== '') {
                         const headingMatch = trimmedLine.match(/^(.*?) (<strong>.*?<\/strong>)/);
-                        if(headingMatch) {
-                            html += `<h3 class="flex items-center gap-2 text-lg font-bold text-slate-100 mt-6 mb-2">${headingMatch[1]} ${headingMatch[2]}</h3>`;
+                        if(headingMatch && outputStyle === 'mindmap') { // Only format as heading in mindmap mode
+                            html += `<h3 class="flex items-center gap-2 font-bold text-slate-100 mt-5 mb-2">${headingMatch[1]} ${headingMatch[2]}</h3>`;
                         } else {
                             html += `<p class="mt-2">${line}</p>`;
                         }
@@ -370,13 +477,13 @@
             const avatar = getAvatar(sender);
 
             const messageBubble = document.createElement('div');
-            messageBubble.className = `max-w-md lg:max-w-3xl rounded-xl p-4 shadow-xl prose-custom ${sender === 'user' ? 'user-message-gradient text-white rounded-br-none' : 'bot-message-gradient text-slate-300 rounded-bl-none'}`;
+            messageBubble.className = `max-w-xl lg:max-w-4xl rounded-xl p-3 shadow-xl prose-custom ${sender === 'user' ? 'user-message-gradient text-white rounded-br-none' : 'bot-message-gradient text-slate-300 rounded-bl-none'}`;
             
             if (isTyping) {
                 messageWrapper.id = 'typing-indicator';
                 messageBubble.innerHTML = `<div class="flex items-center space-x-2"><div class="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div></div>`;
             } else {
-                messageBubble.innerHTML = sender === 'bot' ? processFormattedText(content) : content;
+                messageBubble.innerHTML = sender === 'bot' ? processFormattedText(content) : content.replace(/\n/g, '<br>');
             }
             
             if (sender === 'user') {
@@ -444,16 +551,22 @@
             addMessage(displayMessage, 'user');
             clearActionButtons();
             userInput.value = "";
+            userInput.style.height = 'auto';
             
             chatHistory.push({ role: "user", parts: [{ text: userInputText }] });
             addMessage('', 'bot', true);
 
             let systemPrompt;
-            let contextHistory = chatHistory.slice(-11, -1);
+            // The bug was here. Corrected slice to include the last message.
+            let contextHistory = chatHistory.slice(-12); 
+            
+            const modePrompt = MODE_PROMPTS[currentMode];
+            const formattingPrompt = FORMATTING_PROMPTS[outputStyle];
+            let basePrompt = `${BASE_SYSTEM_PROMPT_CORE}\n\n${modePrompt}\n\n${formattingPrompt}`;
 
             if (currentMode === 'simulate') {
                 if (wargameState.phase === 'idle') {
-                    systemPrompt = PROMPTS.simulate_initial;
+                    systemPrompt = basePrompt;
                     wargameState.phase = 'blue_team_turn';
                     wargameState.turns = 1;
                     wargameState.startIndex = chatHistory.length - 1;
@@ -465,12 +578,12 @@
                      };
                     contextHistory = [modifiedUserMessage];
                 } else {
-                    systemPrompt = PROMPTS.simulate_react;
-                    contextHistory = chatHistory.slice(wargameState.startIndex, -1);
+                    systemPrompt = basePrompt;
+                    contextHistory = chatHistory.slice(wargameState.startIndex);
                     wargameState.turns++;
                 }
             } else {
-                 systemPrompt = PROMPTS[currentMode];
+                 systemPrompt = basePrompt;
                  if (currentMode === 'threat_intel') {
                     const context = "INTELLIGENCE BRIEFING (Simulated Search Results):\n" + Object.values(MOCK_SEARCH_RESULTS).join("\n\n");
                     const lastUserMessage = chatHistory[chatHistory.length - 1];
@@ -502,38 +615,70 @@
 
             clearActionButtons();
             addMessage('', 'bot', true);
+            
+            const reportPrompt = `${BASE_SYSTEM_PROMPT_CORE}\n\n${MODE_PROMPTS.simulate_report}\n\n${FORMATTING_PROMPTS[outputStyle]}`;
 
             const wargameHistory = chatHistory.slice(wargameState.startIndex);
-            const botResponseText = await getGeminiResponse(PROMPTS.simulate_report, wargameHistory);
+            const botResponseText = await getGeminiResponse(reportPrompt, wargameHistory);
             
             document.getElementById('typing-indicator')?.remove();
             addMessage(botResponseText, 'bot');
             setMode('analyze');
         }
 
-        sendButton.addEventListener('click', handleUserMessage);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleUserMessage();
-            }
-        });
-
-        window.onload = () => {
-            const savedLang = localStorage.getItem('iwAnalystLang') || 'en';
-            setLanguage(savedLang);
+        function initializeApp() {
+            pinOverlay.style.opacity = '0';
+            setTimeout(() => {
+                pinOverlay.style.display = 'none';
+            }, 300);
 
             if (!sessionStorage.getItem('tutorialShown')) {
                  const tutorialMessages = languageStrings[currentLanguage].tutorial;
                  if(tutorialMessages) {
                     tutorialMessages.forEach((msg, index) => {
-                        setTimeout(() => addMessage(msg, 'bot'), index * 1500);
+                        setTimeout(() => addMessage(msg, 'bot'), index * 500);
                     });
                  }
                  sessionStorage.setItem('tutorialShown', 'true');
             } else {
                  addMessage(languageStrings[currentLanguage].welcomeBack, 'bot');
             }
+        }
+
+        pinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const enteredPin = pinInput.value;
+            const correctPin = "610/C";
+            if (enteredPin === correctPin) {
+                pinError.textContent = '';
+                initializeApp();
+            } else {
+                pinError.textContent = 'Invalid PIN. Access denied.';
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        });
+
+        sendButton.addEventListener('click', handleUserMessage);
+        
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleUserMessage();
+            }
+        });
+
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = (userInput.scrollHeight) + 'px';
+        });
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('iwAnalystLang') || 'en';
+            setLanguage(savedLang);
+            setMode('analyze'); // Set default mode on load
+            setOutputStyle('descriptive'); // Set default output style
+            pinInput.focus();
         }
     </script>
 </body>
