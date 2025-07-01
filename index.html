@@ -62,6 +62,7 @@
 </head>
 <body class="flex flex-col h-screen">
 
+    <!-- PIN Overlay -->
     <div id="pin-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300">
         <div class="glass-ui rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center">
             <h2 class="text-xl font-bold text-sky-400 mb-2">Authentication Required</h2>
@@ -74,11 +75,15 @@
         </div>
     </div>
 
+    <!-- Flowchart Modal -->
     <div id="flowchart-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center p-4 sm:p-8">
         <div class="w-full max-w-7xl h-full flex flex-col glass-ui rounded-lg relative">
             <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                <!-- Flowchart Pane -->
                 <div id="modal-flowchart-container" class="w-full md:w-2/3 h-1/2 md:h-full bg-slate-900/30 overflow-hidden relative border-b md:border-b-0 md:border-r border-slate-700">
-                    </div>
+                    <!-- Panzoom will target the SVG inside this -->
+                </div>
+                <!-- Explanation Pane -->
                 <div id="modal-explanation-container" class="w-full md:w-1/3 h-1/2 md:h-full p-4 sm:p-6 overflow-y-auto">
                     <h3 id="explanation-title" class="text-lg font-bold text-sky-400 mb-3 border-b border-slate-700 pb-2">Node Explanation</h3>
                     <div id="explanation-content" class="text-slate-300 space-y-4 prose-custom">
@@ -391,6 +396,10 @@ Your response MUST be structured with the following headings:
                 "L2": "Layer 2: The Gladwellian Tipping Point (Epidemic Dynamics) - This is the 'how it spreads' layer. It operationalizes the grand strategy by focusing on the three rules of epidemics: The Law of the Few (activating key people), The Stickiness Factor (making the message memorable), and The Power of Context (leveraging the environment).",
                 "L3": "Layer 3: The Cialdini Toolkit (Micro-Tactics) - This is the 'how at the point of contact.' It involves the precise, situational deployment of universal principles of persuasion (Reciprocity, Scarcity, etc.) to trigger desired behaviors in individuals.",
                 "L4": "Layer 4: The Kahneman/Tversky Lens (Cognitive Exploitation) - This is the 'why it works' at a neurological level. All tactics are ultimately designed to exploit predictable cognitive biases (Framing, Loss Aversion, etc.) and mental shortcuts that govern human decision-making.",
+                "L1_1": "Define 'Why' & 'What': This involves establishing the ultimate strategic goal of the campaign and what specific outcome is desired.",
+                "L1_2": "Engineer Narrative: This is the process of crafting the core story that will be used to frame all information and events related to the campaign's objective.",
+                "L1_3": "Create Pseudo-Environment: A concept by Walter Lippmann, this refers to creating a manufactured reality for the target audience, shaping their perception of the world to align with campaign goals.",
+                "L1_4": "Manufacture Circumstances: A tactic by Edward Bernays, this involves creating real-world events or happenings that serve as 'proof' or justification for the engineered narrative, making it seem organic and credible.",
                 "L2_1": "Law of the Few: An idea spreads like an epidemic when it is pushed by three types of people: Connectors (who know many people), Mavens (who are information specialists), and Salesmen (who are charismatic persuaders).",
                 "L2_2": "Stickiness Factor: The quality that makes a message memorable and impactful. A sticky idea is simple, unexpected, concrete, credible, emotional, and tells a story.",
                 "L2_3": "Power of Context: The environment and social context in which a message is received can be more important than the message itself. This includes group dynamics and timing.",
@@ -531,6 +540,7 @@ Your response MUST be structured with the following headings:
 
                 if (outputStyle === 'flowchart') {
                     try {
+                        // Sanitize the raw content by removing markdown fences if they exist
                         if (rawContent.startsWith('```json')) {
                             rawContent = rawContent.substring(7, rawContent.length - 3).trim();
                         }
@@ -539,9 +549,10 @@ Your response MUST be structured with the following headings:
                             isFlowchart = true;
                         }
                     } catch (e) {
+                         // Fallback for non-JSON mermaid syntax for robustness
                          if (rawContent.startsWith('graph') || rawContent.startsWith('flowchart')) {
                             isFlowchart = true;
-                            flowchartData = { mermaidSyntax: rawContent, explanations: {} }; // Legacy support
+                            flowchartData = { mermaidSyntax: rawContent, explanations: {} };
                         }
                     }
                 }
@@ -621,7 +632,8 @@ Your response MUST be structured with the following headings:
                 const nodes = svgElement.querySelectorAll('.node');
                 nodes.forEach(node => {
                     node.addEventListener('click', () => {
-                        const nodeId = node.id;
+                        // Mermaid might add extra characters to the ID, so we need the base ID.
+                        const nodeId = node.id.split('-')[0];
                         
                         const previouslySelected = svgElement.querySelector('.node.selected');
                         if (previouslySelected) {
@@ -650,7 +662,7 @@ Your response MUST be structured with the following headings:
 
         // --- Core Logic ---
         async function getGeminiResponse(systemPrompt, contextHistory = []) {
-            const apiKey = "AIzaSyCEM1HD4StmCN43zJasDstqnoMG2lIo0Qo"; 
+            const apiKey = "AIzaSyCEM1HD4StmCN43zJasDstqnoMG2lIo0Qo"; // API Key removed for security
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const fullHistory = [{ role: "user", parts: [{ text: systemPrompt }] }, ...contextHistory];
@@ -662,7 +674,10 @@ Your response MUST be structured with the following headings:
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`API request failed: ${response.status} - ${errorBody}`);
+                }
                 const result = await response.json();
                 if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts) {
                     const text = result.candidates[0].content.parts[0].text;
@@ -672,7 +687,7 @@ Your response MUST be structured with the following headings:
                 return "Error: No valid response generated.";
             } catch (error) {
                 console.error("Gemini API Error:", error);
-                return `System Error: Connection to synthetic intelligence network failed. Please verify your API Key.`;
+                return `System Error: Connection to synthetic intelligence network failed. Please check your connection or API key. Details: ${error.message}`;
             }
         }
 
