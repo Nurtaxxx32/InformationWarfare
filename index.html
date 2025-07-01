@@ -536,7 +536,7 @@ Your response MUST be structured with the following headings:
         }
 
         async function getGeminiResponse(systemPrompt, contextHistory = []) {
-            const apiKey = ""; 
+            const apiKey = "AIzaSyCEM1HD4StmCN43zJasDstqnoMG2lIo0Qo"; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const fullHistory = [{ role: "user", parts: [{ text: systemPrompt }] }, ...contextHistory];
