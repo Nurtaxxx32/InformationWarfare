@@ -8,105 +8,175 @@
     <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --glow-color-1: #f000b8; /* Neon Pink/Magenta */
+            --glow-color-2: #00e5ff; /* Neon Cyan */
+            --glow-gradient: linear-gradient(90deg, var(--glow-color-1), var(--glow-color-2));
+            --bg-color: #0d041a; /* Deep Purple/Navy */
+            --text-color: #e0fbfc;
+            --border-color: rgba(240, 0, 184, 0.3);
+            --border-color-2: rgba(0, 229, 255, 0.3);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #020617;
-            color: #e2e8f0;
-            background-image: radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.15), transparent 40%);
-            /* Add background animation */
-            animation: animateBackground 20s ease-in-out infinite;
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-image: 
+                radial-gradient(circle at 100% 0%, var(--border-color), transparent 30%),
+                radial-gradient(circle at 0% 100%, var(--border-color-2), transparent 30%);
+            overflow: hidden;
+            animation: textFlicker 0.08s infinite alternate;
         }
-
-        /* Keyframes for background animation */
-        @keyframes animateBackground {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        #chat-container::-webkit-scrollbar { width: 8px; }
-        #chat-container::-webkit-scrollbar-track { background: transparent; }
-        #chat-container::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 20px; }
-        .font-mono { font-family: 'Roboto Mono', monospace; }
-        .bot-message-gradient { background-color: rgba(30, 41, 59, 0.5); border: 1px solid #475569; }
-        .user-message-gradient { background: linear-gradient(145deg, #0ea5e9, #0284c7); }
         
-        /* General Fade-in Animation */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-message { animation: fadeIn 0.4s ease-out; }
+        body::after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 5px 100%;
+            z-index: 2;
+            pointer-events: none;
+            animation: scanlines 0.8s linear infinite;
+        }
 
-        /* Pulsing Glow Animation */
+        @keyframes scanlines {
+            from { background-position: 0 0; }
+            to { background-position: 0 100%; }
+        }
+
+        #chat-container::-webkit-scrollbar, #knowledge-index-content::-webkit-scrollbar { width: 4px; }
+        #chat-container::-webkit-scrollbar-track, #knowledge-index-content::-webkit-scrollbar-track { background: transparent; }
+        #chat-container::-webkit-scrollbar-thumb, #knowledge-index-content::-webkit-scrollbar-thumb { background-image: var(--glow-gradient); border-radius: 4px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .chat-message { animation: fadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 15px rgba(14, 165, 233, 0.4); }
-            50% { box-shadow: 0 0 25px rgba(14, 165, 233, 0.7); }
+            0%, 100% { box-shadow: 0 0 12px var(--border-color), 0 0 12px var(--border-color-2); }
+            50% { box-shadow: 0 0 20px var(--glow-color-1), 0 0 20px var(--glow-color-2); }
         }
-        @keyframes pulseText {
-            0%, 100% { text-shadow: 0 0 4px rgba(14, 165, 233, 0.5); }
-            50% { text-shadow: 0 0 8px rgba(14, 165, 233, 0.9); }
+        @keyframes textFlicker {
+            from { text-shadow: 0 0 3px var(--glow-color-1), 0 0 5px var(--glow-color-2); }
+            to { text-shadow: 0 0 5px var(--glow-color-1), 0 0 8px var(--glow-color-2); }
         }
 
-        .feature-button { transition: all 0.3s ease-in-out; border-width: 1px; border-color: #475569; background-color: rgba(30, 41, 59, 0.5); }
+        .holo-container {
+            background: transparent;
+            border: 1px solid;
+            border-image-slice: 1;
+            border-image-source: var(--glow-gradient);
+            position: relative;
+            box-shadow: 0 0 5px var(--border-color), 0 0 5px var(--border-color-2);
+        }
+        .holo-container::before, .holo-container::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+        }
+        .holo-container::before { top: -2px; left: -2px; border-top: 2px solid var(--glow-color-2); border-left: 2px solid var(--glow-color-2); }
+        .holo-container::after { bottom: -2px; right: -2px; border-bottom: 2px solid var(--glow-color-1); border-right: 2px solid var(--glow-color-1); }
+
+        .feature-button {
+            background: transparent;
+            border: 1px solid;
+            border-image-slice: 1;
+            border-image-source: var(--glow-gradient);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            text-shadow: 0 0 3px var(--glow-color-2);
+        }
         .feature-button:hover { 
-            border-color: #94a3b8; 
-            background-color: rgba(51, 65, 85, 0.7); 
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(90deg, rgba(240, 0, 184, 0.3), rgba(0, 229, 255, 0.3));
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+            box-shadow: 0 0 15px var(--border-color);
         }
         .feature-button.active { 
-            background-color: #0ea5e9; 
-            color: #ffffff; 
-            border-color: #0ea5e9; 
-            animation: pulseGlow 3s infinite;
+            background: var(--glow-gradient);
+            color: var(--bg-color);
+            text-shadow: none;
+            animation: pulseGlow 2s infinite ease-in-out;
         }
 
-        .output-style-button { transition: all 0.3s ease-in-out; border: 1px solid #475569; background-color: transparent; color: #94a3b8; }
-        .output-style-button:hover { background-color: rgba(51, 65, 85, 0.7); border-color: #94a3b8; transform: scale(1.05); }
-        .output-style-button.active { color: #e2e8f0; background-color: #334155; border-color: #64748b; }
+        .output-style-button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .output-style-button:hover { background: linear-gradient(90deg, rgba(240, 0, 184, 0.3), rgba(0, 229, 255, 0.3)); color: #fff; }
+        .output-style-button.active { background: var(--glow-gradient); color: var(--bg-color); border-color: transparent; }
         
-        .action-button { transition: all 0.3s ease-in-out; background-color: #334155; border: 1px solid #64748b; }
+        .action-button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
         .action-button:hover { 
-            background-color: #475569; 
-            border-color: #94a3b8; 
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+            background: linear-gradient(90deg, rgba(240, 0, 184, 0.3), rgba(0, 229, 255, 0.3));
+            color: #fff;
+            box-shadow: 0 0 15px var(--border-color);
         }
 
-        .glass-ui { 
-            background-color: rgba(15, 23, 42, 0.6); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); 
-            border: 1px solid rgba(51, 65, 85, 0.5); 
+        #headerTitle { 
+            font-family: 'Orbitron', sans-serif; 
+            background: var(--glow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textFlicker 0.05s infinite alternate;
         }
-
-        .prose-custom { font-size: 0.9rem; }
-        .prose-custom h3 { font-size: 1rem; font-weight: 700; color: #f0f9ff; margin-top: 1.25rem; margin-bottom: 0.25rem; }
-        .prose-custom p { margin-top: 0.25rem; line-height: 1.5; }
-        .prose-custom ul { margin-top: 0.5rem; margin-left: 0; list-style-type: none; padding-left: 0; }
-        .prose-custom li { margin-top: 0.25rem; padding-left: 0; }
-        .prose-custom strong { color: #7dd3fc; }
-        #pin-overlay, #flowchart-modal { z-index: 100; }
-        #userInput { resize: none; }
-        .mermaid { background-color: transparent !important; }
         
-        /* Interactive Flowchart Styles */
-        #modal-flowchart-container .node { cursor: pointer; transition: transform 0.1s ease-out; }
-        #modal-flowchart-container .node:hover { transform: scale(1.02); }
-        #modal-flowchart-container .node.selected > rect,
-        #modal-flowchart-container .node.selected > circle,
-        #modal-flowchart-container .node.selected > polygon,
-        #modal-flowchart-container .node.selected > path {
-            stroke: #0ea5e9 !important;
-            stroke-width: 4px !important;
+        .bot-message, .user-message {
+            border: 1px solid;
+            background-size: 200% 200%;
+            background-position: 50% 50%;
+            padding: 1rem;
+            position: relative;
         }
-        #modal-explanation-container::-webkit-scrollbar { width: 6px; }
-        #modal-explanation-container::-webkit-scrollbar-track { background: transparent; }
-        #modal-explanation-container::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 20px; }
+        .bot-message {
+            border-color: var(--border-color-2);
+            background-image: linear-gradient(45deg, rgba(0, 229, 255, 0.05), transparent);
+        }
+        .user-message {
+            border-color: var(--border-color);
+            background-image: linear-gradient(-45deg, rgba(240, 0, 184, 0.05), transparent);
+        }
 
-        /* Header title animation */
-        #headerTitle {
-            animation: pulseText 4s infinite ease-in-out;
+        #userInput {
+            background: linear-gradient(90deg, rgba(240, 0, 184, 0.05), rgba(0, 229, 255, 0.05));
+            border: 1px solid;
+            border-image-slice: 1;
+            border-image-source: var(--glow-gradient);
+            color: var(--text-color);
+            text-shadow: 0 0 3px var(--glow-color-2);
+        }
+        #userInput::placeholder { color: var(--text-color); opacity: 0.5; }
+        #userInput:focus { box-shadow: 0 0 10px var(--border-color), 0 0 10px var(--border-color-2); }
+        
+        #sendButton {
+            border: 1px solid;
+            border-image-slice: 1;
+            border-image-source: var(--glow-gradient);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        #sendButton:hover { background: var(--glow-gradient); }
+        #sendButton:hover svg { stroke: var(--bg-color); }
+        
+        .prose-custom strong { 
+            background: var(--glow-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
@@ -114,53 +184,65 @@
 <body class="flex flex-col h-screen">
 
     <!-- PIN Overlay -->
-    <div id="pin-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300">
-        <div class="glass-ui rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center">
-            <h2 class="text-xl font-bold text-sky-400 mb-2">Authentication Required</h2>
-            <p class="text-slate-400 mb-6 text-sm">Enter security PIN to access the system.</p>
+    <div id="pin-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center transition-opacity duration-500 z-50">
+        <div class="holo-container p-8 w-full max-w-sm text-center">
+            <h2 class="text-2xl font-bold text-cyan-300 mb-4 font-['Orbitron']">SYSTEM LOCK</h2>
+            <p class="text-slate-400 mb-6 text-sm">AUTHENTICATION REQUIRED</p>
             <form id="pin-form">
-                <input type="password" id="pinInput" class="w-full text-center bg-slate-800 border border-slate-700 rounded-lg py-3 px-5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500 tracking-widest" placeholder="PIN">
+                <input type="password" id="pinInput" class="w-full text-center tracking-[0.5em] bg-slate-800/50 border border-slate-700 rounded-lg py-3 px-5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500" placeholder="PIN">
                 <p id="pinError" class="text-red-400 text-xs h-4 mt-2"></p>
-                <button type="submit" class="w-full mt-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg py-3 transition-all">Authorize</button>
+                <button type="submit" class="w-full mt-4 bg-sky-600/50 hover:bg-sky-700/70 border border-sky-500 text-white font-bold rounded-lg py-3 transition-all">AUTHORIZE</button>
             </form>
         </div>
     </div>
 
+    <!-- Knowledge Index Modal -->
+    <div id="knowledge-index-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden flex-col items-center justify-center p-4 sm:p-8 z-40">
+        <div class="w-full max-w-4xl h-[90vh] flex flex-col holo-container relative">
+            <div class="p-6 border-b border-image-slice-1" style="border-image-source: var(--glow-gradient);">
+                 <h2 class="text-2xl font-bold text-cyan-300 font-['Orbitron']">KNOWLEDGE INDEX</h2>
+                 <p class="text-cyan-300/70">Core concepts and queryable topics.</p>
+            </div>
+            <div id="knowledge-index-content" class="flex-1 p-6 overflow-y-auto">
+                <!-- Content will be injected by JS -->
+            </div>
+        </div>
+        <button id="close-knowledge-index-modal" class="absolute top-2 right-2 sm:top-6 sm:right-10 text-cyan-300 text-5xl font-mono hover:text-white transition-colors">&times;</button>
+    </div>
+
     <!-- Flowchart Modal -->
-    <div id="flowchart-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md hidden flex-col items-center justify-center p-4 sm:p-8">
-        <div class="w-full max-w-7xl h-full flex flex-col glass-ui rounded-lg relative">
+    <div id="flowchart-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden flex-col items-center justify-center p-4 sm:p-8 z-40">
+        <div class="w-full max-w-7xl h-full flex flex-col holo-container relative">
             <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
-                <!-- Flowchart Pane -->
-                <div id="modal-flowchart-container" class="w-full md:w-2/3 h-1/2 md:h-full bg-slate-900/30 overflow-hidden relative border-b md:border-b-0 md:border-r border-slate-700">
-                    <!-- Panzoom will target the SVG inside this -->
-                </div>
-                <!-- Explanation Pane -->
+                <div id="modal-flowchart-container" class="w-full md:w-2/3 h-1/2 md:h-full overflow-hidden relative border-b md:border-b-0 md:border-r" style="border-color: var(--border-color);"></div>
                 <div id="modal-explanation-container" class="w-full md:w-1/3 h-1/2 md:h-full p-4 sm:p-6 overflow-y-auto">
-                    <h3 id="explanation-title" class="text-lg font-bold text-sky-400 mb-3 border-b border-slate-700 pb-2">Node Explanation</h3>
+                    <h3 id="explanation-title" class="text-lg font-bold text-cyan-300 mb-3 border-b pb-2" style="border-color: var(--border-color);">NODE ANALYSIS</h3>
                     <div id="explanation-content" class="text-slate-300 space-y-4 prose-custom">
-                        <p class="text-slate-400">Click on a node in the flowchart to see its detailed explanation here.</p>
+                        <p class="text-slate-400">SELECT NODE FOR DATA STREAM</p>
                     </div>
                 </div>
             </div>
         </div>
-        <button id="close-flowchart-modal" class="absolute top-2 right-2 sm:top-6 sm:right-10 text-white text-4xl font-bold hover:text-sky-400 transition-colors">&times;</button>
+        <button id="close-flowchart-modal" class="absolute top-2 right-2 sm:top-6 sm:right-10 text-cyan-300 text-5xl font-mono hover:text-white transition-colors">&times;</button>
     </div>
 
-    <header class="glass-ui border-b p-3 shadow-lg text-center shrink-0">
+    <header class="holo-container m-2 p-3 text-center shrink-0">
         <div class="flex justify-between items-center">
-             <div class="w-16">
+             <div class="w-24 flex gap-2">
                  <button id="knowledge-base-btn" title="View Source Knowledge" class="action-button rounded-full h-9 w-9 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z"/><path d="M12 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/><path d="M12 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/><path d="m18 12-2.39-1.38"/><path d="m6 12 2.39-1.38"/><path d="m12 6-1.38 2.39"/><path d="m12 18-1.38-2.39"/><path d="m19.39 18.62-2.39-1.38"/><path d="m4.61 6.38 2.39 1.38"/><path d="m19.39 6.38-1.38 2.39"/><path d="m4.61 18.62 1.38-2.39"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z"/><path d="M12 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/><path d="M12 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/><path d="m18 12-2.39-1.38"/><path d="m6 12 2.39-1.38"/><path d="m12 6-1.38 2.39"/><path d="m12 18-1.38-2.39"/><path d="m19.39 18.62-2.39-1.38"/><path d="m4.61 6.38 2.39 1.38"/><path d="m19.39 6.38-1.38 2.39"/><path d="m4.61 18.62 1.38-2.39"/></svg>
+                 </button>
+                  <button id="knowledge-index-btn" title="View Knowledge Index" class="action-button rounded-full h-9 w-9 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                  </button>
              </div>
             <div class="text-center">
-                <h1 id="headerTitle" class="text-lg font-black font-mono text-sky-400 tracking-wider flex items-center justify-center gap-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 1 0 0-12"></path></svg>
+                <h1 id="headerTitle" class="text-2xl font-bold tracking-widest flex items-center justify-center gap-x-3">
                     IW TACTICAL ANALYST
                 </h1>
-                <p id="headerSubtitle" class="text-xs text-sky-400/60 font-semibold">Dahook IT powered</p>
+                <p id="headerSubtitle" class="text-xs text-cyan-300/60 font-semibold tracking-[0.2em]">DAHOOK IT POWERED</p>
             </div>
-            <button id="langSwitcher" class="lang-switcher w-16 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-slate-800/50 border-slate-700 hover:bg-slate-700/70">EN</button>
+            <button id="langSwitcher" class="lang-switcher w-24 h-8 rounded-md flex items-center justify-center text-xs font-bold border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20">EN</button>
         </div>
     </header>
 
@@ -168,41 +250,41 @@
     
     <div id="action-button-container" class="px-4 pb-2 text-center"></div>
 
-    <footer class="glass-ui border-t p-3 shrink-0">
+    <footer class="holo-container m-2 p-3 shrink-0">
         <div class="flex items-center justify-center gap-2 mb-3">
-            <button id="mindmapModeBtn" class="output-style-button rounded-full py-1 px-4 text-xs font-medium">Mind Map</button>
-            <button id="descriptiveModeBtn" class="output-style-button active rounded-full py-1 px-4 text-xs font-medium">Descriptive</button>
-            <button id="flowchartModeBtn" class="output-style-button rounded-full py-1 px-4 text-xs font-medium">Flowchart</button>
+            <button id="mindmapModeBtn" class="output-style-button rounded-md py-1 px-4 text-xs font-medium">Mind Map</button>
+            <button id="descriptiveModeBtn" class="output-style-button active rounded-md py-1 px-4 text-xs font-medium">Descriptive</button>
+            <button id="flowchartModeBtn" class="output-style-button rounded-md py-1 px-4 text-xs font-medium">Flowchart</button>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
-             <button id="analyzeMode" class="feature-button active flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-                <span id="analyzeBtnText">Analyze</span>
+             <button id="analyzeMode" class="feature-button active flex items-center justify-center gap-2 flex-1 rounded-md py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span id="analyzeBtnText">ANALYZE</span>
             </button>
-             <button id="influenceMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <span id="influenceBtnText">Influence</span>
+             <button id="influenceMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-md py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                <span id="influenceBtnText">INFLUENCE</span>
             </button>
-             <button id="simulateMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"></path><path d="M13 19h6v-6"></path><path d="m15 15 6 6"></path></svg>
-                <span id="simulateBtnText">Simulate</span>
+             <button id="simulateMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-md py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"></path><path d="M13 19h6v-6"></path><path d="m15 15 6 6"></path></svg>
+                <span id="simulateBtnText">SIMULATE</span>
             </button>
-             <button id="threatIntelMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"></path><path d="M21 12H3"></path><path d="M21 18H3"></path></svg>
-                <span id="threatIntelBtnText">Threat Intel</span>
+             <button id="threatIntelMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-md py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.06 12H2.94a1 1 0 0 0-.94.94v6.12a1 1 0 0 0 .94.94h18.12a1 1 0 0 0 .94-.94v-6.12a1 1 0 0 0-.94-.94Z"/><path d="M12 12V2.14a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v15.86a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V13a1 1 0 0 0-1-1Z"/></svg>
+                <span id="threatIntelBtnText">THREAT INTEL</span>
             </button>
-            <button id="postAnalysisMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-lg py-2 px-3 text-xs font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-search-2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M5 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="m9 21-1.6-1.6"></path></svg>
-                <span id="postAnalysisBtnText">Post Analysis</span>
+            <button id="postAnalysisMode" class="feature-button flex items-center justify-center gap-2 flex-1 rounded-md py-2 px-3 text-xs font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                <span id="postAnalysisBtnText">POST ANALYSIS</span>
             </button>
         </div>
         <div class="flex items-center space-x-2">
-            <textarea id="userInput" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-200 placeholder-slate-500 text-sm" rows="1" placeholder="e.g., How to conduct a memetic blitz"></textarea>
-            <button id="sendButton" class="bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-full h-10 w-10 flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <textarea id="userInput" class="flex-1 rounded-md py-2 px-4 focus:outline-none" rows="1" placeholder="e.g., How to conduct a memetic blitz"></textarea>
+            <button id="sendButton" class="rounded-full h-10 w-10 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
-        <p class="text-xs text-center text-slate-500 mt-3" id="copyrightText">Copyright &copy; <span id="copyright-year"></span> Nurtaz Uddin Al Masuk. All Rights Reserved.</p>
+        <p class="text-xs text-center text-cyan-300/40 mt-3" id="copyrightText">Copyright &copy; <span id="copyright-year"></span> Nurtaz Uddin Al Masuk. All Rights Reserved.</p>
     </footer>
 
     <script type="module">
@@ -212,6 +294,7 @@
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         const knowledgeBaseBtn = document.getElementById('knowledge-base-btn');
+        const knowledgeIndexBtn = document.getElementById('knowledge-index-btn');
         const analyzeModeBtn = document.getElementById('analyzeMode');
         const influenceModeBtn = document.getElementById('influenceMode');
         const simulateModeBtn = document.getElementById('simulateMode');
@@ -229,6 +312,9 @@
         const flowchartModal = document.getElementById('flowchart-modal');
         const modalFlowchartContainer = document.getElementById('modal-flowchart-container');
         const closeFlowchartModalBtn = document.getElementById('close-flowchart-modal');
+        const knowledgeIndexModal = document.getElementById('knowledge-index-modal');
+        const closeKnowledgeIndexModalBtn = document.getElementById('close-knowledge-index-modal');
+        const knowledgeIndexContent = document.getElementById('knowledge-index-content');
 
         let chatHistory = [];
         let currentMode = 'analyze';
@@ -243,12 +329,12 @@
             en: {
                 appTitle: "Dahook IT Powered IW Tactical Analyst",
                 headerTitle: "IW TACTICAL ANALYST",
-                headerSubtitle: "Dahook IT powered",
-                analyzeBtnText: "Analyze",
-                influenceBtnText: "Influence",
-                simulateBtnText: "Simulate",
-                threatIntelBtnText: "Threat Intel",
-                postAnalysisBtnText: "Post Analysis",
+                headerSubtitle: "DAHOOK IT POWERED",
+                analyzeBtnText: "ANALYZE",
+                influenceBtnText: "INFLUENCE",
+                simulateBtnText: "SIMULATE",
+                threatIntelBtnText: "THREAT INTEL",
+                postAnalysisBtnText: "POST ANALYSIS",
                 copyrightText: "Copyright &copy; {year} Nurtaz Uddin Al Masuk. All Rights Reserved.",
                 placeholders: {
                     analyze: "e.g., How to conduct a memetic blitz",
@@ -449,7 +535,7 @@ Your response MUST be structured with the following headings:
                 "L4": "Layer 4: The Kahneman/Tversky Lens (Cognitive Exploitation) - This is the 'why it works' at a neurological level. All tactics are ultimately designed to exploit predictable cognitive biases (Framing, Loss Aversion, etc.) and mental shortcuts that govern human decision-making.",
                 "L1_1": "Define 'Why' & 'What': This involves establishing the ultimate strategic goal of the campaign and what specific outcome is desired.",
                 "L1_2": "Engineer Narrative: This is the process of crafting the core story that will be used to frame all information and events related to the campaign's objective.",
-                "L1_3": "Create Pseudo-Environment: A concept by Walter Lippmann, this refers to creating a manufactured reality for the target audience, shaping their perception of the world to align with campaign goals.",
+                "L1_3": "Create Pseudo-Environment: A concept by Walter Lippmann, this refers to creating a manufactured reality for the target audience, shng their perception of the world to align with campaign goals.",
                 "L1_4": "Manufacture Circumstances: A tactic by Edward Bernays, this involves creating real-world events or happenings that serve as 'proof' or justification for the engineered narrative, making it seem organic and credible.",
                 "L2_1": "Law of the Few: An idea spreads like an epidemic when it is pushed by three types of people: Connectors (who know many people), Mavens (who are information specialists), and Salesmen (who are charismatic persuaders).",
                 "L2_2": "Stickiness Factor: The quality that makes a message memorable and impactful. A sticky idea is simple, unexpected, concrete, credible, emotional, and tells a story.",
@@ -466,6 +552,36 @@ Your response MUST be structured with the following headings:
                 "L4_4": "Heuristics & Biases: Humans rely on mental shortcuts (heuristics) to make quick judgments. While often useful, they can lead to systematic errors in thinking (cognitive biases)."
             }
         };
+
+        const KNOWLEDGE_INDEX = [
+            {
+                category: "The Influence Stack: Core Layers",
+                items: [
+                    { topic: "Layer 1: Bernaysian Foundation (Grand Strategy)", explanation: "The 'why' and 'what.' Defines the core objective and overarching narrative. Focuses on creating a 'pseudo-environment' (Lippmann) by manufacturing events ('creating circumstances' - Bernays) to manipulate the mass 'group mind'." },
+                    { topic: "Layer 2: Gladwellian Tipping Point (Epidemic Dynamics)", explanation: "The 'how it spreads.' Operationalizes grand strategy by focusing on The Law of the Few, The Stickiness Factor, and The Power of Context to create an epidemic-like spread of ideas." },
+                    { topic: "Layer 3: Cialdini Toolkit (Micro-Tactics)", explanation: "The 'how at the point of contact.' Deploys six universal principles of persuasion (Reciprocity, Commitment/Consistency, Social Proof, Liking, Authority, Scarcity) to trigger desired behaviors." },
+                    { topic: "Layer 4: Kahneman/Tversky Lens (Cognitive Exploitation)", explanation: "The 'why it works' neurologically. All tactics are designed to exploit predictable cognitive biases and mental shortcuts (heuristics) like Framing, Loss Aversion, and Confirmation Bias." }
+                ]
+            },
+            {
+                category: "Primary Levers & Core Concepts",
+                items: [
+                    { topic: "Cognitive Dominance", explanation: "The ultimate goal: to win the 'hearts and minds' of a target population, making a specific narrative the sole, accepted mental model for understanding an issue." },
+                    { topic: "Framing & Narrative Control", explanation: "Controlling how information is presented to influence interpretation. Establishing a dominant narrative (e.g., Victim vs. Aggressor) makes all subsequent information conform to that frame." },
+                    { topic: "Social Proof & The Spiral of Silence", explanation: "Manufacturing the perception of a consensus to trigger herd behavior. As a narrative appears popular, dissenting opinions are silenced for fear of social isolation, reinforcing the original narrative." },
+                    { topic: "Commitment & Consistency (Foot-in-the-Door)", explanation: "Eliciting small, initial commitments that can be escalated. People strive to remain consistent with their public declarations, making them more susceptible to further, related requests." },
+                    { topic: "Scarcity & Loss Aversion", explanation: "Framing opportunities as scarce or fleeting. People are more motivated by the fear of losing something than the prospect of gaining something of equal value." }
+                ]
+            },
+            {
+                category: "Key Execution Theories",
+                items: [
+                    { topic: "Agenda-Setting & Cultivation Theory", explanation: "Controlling what people think *about*, and over time, shng *how* they think about those topics by managing media exposure." },
+                    { topic: "The Alinsky Method", explanation: "A set of power tactics focused on isolating, personalizing, and polarizing targets. It advocates using ridicule as a primary and effective weapon." },
+                    { topic: "Communication Accommodation Theory", explanation: "The process of adjusting one's communication style to either gain approval and increase efficiency (Convergence) or to emphasize differences and create distance (Divergence)." }
+                ]
+            }
+        ];
         
         // --- UI and Language Functions ---
         function setLanguage(lang) {
@@ -474,7 +590,7 @@ Your response MUST be structured with the following headings:
             const strings = languageStrings[lang];
             
             document.getElementById('appTitle').textContent = strings.appTitle;
-            document.getElementById('headerTitle').childNodes[2].nodeValue = " " + strings.headerTitle;
+            document.getElementById('headerTitle').childNodes[0].nodeValue = " " + strings.headerTitle;
             document.getElementById('headerSubtitle').textContent = strings.headerSubtitle;
             document.getElementById('analyzeBtnText').textContent = strings.analyzeBtnText;
             document.getElementById('influenceBtnText').textContent = strings.influenceBtnText;
@@ -635,7 +751,7 @@ Your response MUST be structured with the following headings:
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // --- Action Button and Flowchart Modal Functions ---
+        // --- Action Button and Modal Functions ---
         function displayActionButton(text, id, handler) {
             const button = document.createElement('button');
             button.id = id;
@@ -647,6 +763,32 @@ Your response MUST be structured with the following headings:
 
         function clearActionButtons() {
             actionButtonContainer.innerHTML = '';
+        }
+
+        function openKnowledgeIndexModal() {
+            knowledgeIndexContent.innerHTML = '';
+            KNOWLEDGE_INDEX.forEach(category => {
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.className = "text-xl font-bold text-cyan-300 mt-4 mb-2 font-['Orbitron'] border-b border-cyan-500/20 pb-1";
+                categoryTitle.textContent = category.category;
+                knowledgeIndexContent.appendChild(categoryTitle);
+
+                const list = document.createElement('dl');
+                category.items.forEach(item => {
+                    const term = document.createElement('dt');
+                    term.className = "font-bold text-cyan-200 mt-3";
+                    term.textContent = item.topic;
+                    list.appendChild(term);
+
+                    const description = document.createElement('dd');
+                    description.className = "text-cyan-200/80 text-sm pl-4 border-l-2 border-cyan-500/30";
+                    description.textContent = item.explanation;
+                    list.appendChild(description);
+                });
+                knowledgeIndexContent.appendChild(list);
+            });
+            knowledgeIndexModal.classList.remove('hidden');
+            knowledgeIndexModal.classList.add('flex');
         }
 
         function openFlowchartModal(flowchartData) {
@@ -686,8 +828,6 @@ Your response MUST be structured with the following headings:
                         const clickedDomId = node.id;
                         let bestMatchId = null;
 
-                        // Find the longest key from our explanations object that is a prefix of the clicked node's DOM ID.
-                        // This robustly handles cases where Mermaid appends suffixes to the original node ID.
                         for (const key in explanations) {
                             if (clickedDomId.startsWith(key)) {
                                 if (!bestMatchId || key.length > bestMatchId.length) {
@@ -723,6 +863,11 @@ Your response MUST be structured with the following headings:
                 panzoomInstance = null;
             }
             activeFlowchartNodeId = null;
+        });
+        
+        closeKnowledgeIndexModalBtn.addEventListener('click', () => {
+            knowledgeIndexModal.classList.add('hidden');
+            knowledgeIndexModal.classList.remove('flex');
         });
 
         // --- Core Logic ---
@@ -878,6 +1023,7 @@ Your response MUST be structured with the following headings:
         });
 
         knowledgeBaseBtn.addEventListener('click', () => openFlowchartModal(KNOWLEDGE_BASE_FLOWCHART));
+        knowledgeIndexBtn.addEventListener('click', openKnowledgeIndexModal);
         sendButton.addEventListener('click', handleUserMessage);
         
         userInput.addEventListener('keypress', (e) => {
