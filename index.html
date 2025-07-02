@@ -14,26 +14,72 @@
             font-family: 'Inter', sans-serif;
             background-color: #020617;
             color: #e2e8f0;
-            background-image: radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.1), transparent 40%);
+            background-image: radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.15), transparent 40%);
+            /* Add background animation */
+            animation: animateBackground 20s ease-in-out infinite;
         }
+
+        /* Keyframes for background animation */
+        @keyframes animateBackground {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
         #chat-container::-webkit-scrollbar { width: 8px; }
         #chat-container::-webkit-scrollbar-track { background: transparent; }
         #chat-container::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 20px; }
         .font-mono { font-family: 'Roboto Mono', monospace; }
         .bot-message-gradient { background-color: rgba(30, 41, 59, 0.5); border: 1px solid #475569; }
         .user-message-gradient { background: linear-gradient(145deg, #0ea5e9, #0284c7); }
+        
+        /* General Fade-in Animation */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-message { animation: fadeIn 0.3s ease-out; }
-        .feature-button { transition: all 0.2s ease-in-out; border-width: 1px; border-color: #475569; background-color: rgba(30, 41, 59, 0.5); }
-        .feature-button:hover { border-color: #94a3b8; background-color: rgba(51, 65, 85, 0.7); }
-        .feature-button.active { background-color: #0ea5e9; color: #ffffff; border-color: #0ea5e9; box-shadow: 0 0 15px rgba(14, 165, 233, 0.4); }
-        .output-style-button { transition: all 0.2s ease-in-out; border: 1px solid #475569; background-color: transparent; color: #94a3b8; }
-        .output-style-button:hover { background-color: rgba(51, 65, 85, 0.7); border-color: #94a3b8; }
+        .chat-message { animation: fadeIn 0.4s ease-out; }
+
+        /* Pulsing Glow Animation */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(14, 165, 233, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(14, 165, 233, 0.7); }
+        }
+        @keyframes pulseText {
+            0%, 100% { text-shadow: 0 0 4px rgba(14, 165, 233, 0.5); }
+            50% { text-shadow: 0 0 8px rgba(14, 165, 233, 0.9); }
+        }
+
+        .feature-button { transition: all 0.3s ease-in-out; border-width: 1px; border-color: #475569; background-color: rgba(30, 41, 59, 0.5); }
+        .feature-button:hover { 
+            border-color: #94a3b8; 
+            background-color: rgba(51, 65, 85, 0.7); 
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .feature-button.active { 
+            background-color: #0ea5e9; 
+            color: #ffffff; 
+            border-color: #0ea5e9; 
+            animation: pulseGlow 3s infinite;
+        }
+
+        .output-style-button { transition: all 0.3s ease-in-out; border: 1px solid #475569; background-color: transparent; color: #94a3b8; }
+        .output-style-button:hover { background-color: rgba(51, 65, 85, 0.7); border-color: #94a3b8; transform: scale(1.05); }
         .output-style-button.active { color: #e2e8f0; background-color: #334155; border-color: #64748b; }
-        .action-button { transition: all 0.2s ease-in-out; background-color: #334155; border: 1px solid #64748b; }
-        .action-button:hover { background-color: #475569; border-color: #94a3b8; transform: translateY(-2px); }
-        .glass-ui { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.5); }
+        
+        .action-button { transition: all 0.3s ease-in-out; background-color: #334155; border: 1px solid #64748b; }
+        .action-button:hover { 
+            background-color: #475569; 
+            border-color: #94a3b8; 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .glass-ui { 
+            background-color: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); 
+            border: 1px solid rgba(51, 65, 85, 0.5); 
+        }
+
         .prose-custom { font-size: 0.9rem; }
         .prose-custom h3 { font-size: 1rem; font-weight: 700; color: #f0f9ff; margin-top: 1.25rem; margin-bottom: 0.25rem; }
         .prose-custom p { margin-top: 0.25rem; line-height: 1.5; }
@@ -57,6 +103,11 @@
         #modal-explanation-container::-webkit-scrollbar { width: 6px; }
         #modal-explanation-container::-webkit-scrollbar-track { background: transparent; }
         #modal-explanation-container::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 20px; }
+
+        /* Header title animation */
+        #headerTitle {
+            animation: pulseText 4s infinite ease-in-out;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
@@ -293,11 +344,11 @@
             mindmap: `**CRITICAL FORMATTING RULE:** Your output MUST be highly readable and visually appealing. Structure your response like a mind map. Use a combination of paragraphs for context, **bolded headings with relevant emojis** for main ideas, and indented bullet points for details.`,
             descriptive: `**CRITICAL FORMATTING RULE:** Your output MUST be in a descriptive, narrative prose style. Use well-structured paragraphs to explain concepts thoroughly and coherently. Do not use bullet points, emojis, or mind-map-style headings. Focus on creating a detailed textual explanation.`,
             flowchart: `**CRITICAL FORMATTING RULE:** Your output MUST be a single JSON object. Do not include any other text, explanation, or markdown outside of this JSON object. The JSON object must have two keys: "mermaidSyntax" and "explanations".
-- "mermaidSyntax": A string containing a valid Mermaid.js flowchart diagram (e.g., "graph TD; A[Start] --> B[End]"). The text inside nodes must be escaped for JSON.
+- "mermaidSyntax": A string containing a valid Mermaid.js flowchart diagram. **CRITICAL MERMAID SYNTAX:** All text within nodes MUST be enclosed in double quotes to handle special characters correctly. For example: \`A["Node text with (parentheses)"]\`. The entire mermaidSyntax string must also be a valid JSON string (e.g., internal quotes must be escaped: \`"graph TD; A[\\"Node text\\"]"\`).
 - "explanations": An object where each key is a node ID from the mermaidSyntax (e.g., "A", "B") and the value is a string explaining that node.
 Example:
 {
-  "mermaidSyntax": "graph TD; A[Step 1: Diagnosis] --> B{Is it complex?}; B -- Yes --> C[Deep Dive]; B -- No --> D[Standard Procedure];",
+  "mermaidSyntax": "graph TD; A[\\"Step 1: Diagnosis\\"] --> B{\\"Is it (complex)?\\"}; B -- Yes --> C[\\"Deep Dive\\"]; B -- No --> D[\\"Standard Procedure\\"];",
   "explanations": {
     "A": "This is the initial phase where the problem is identified and assessed.",
     "B": "A critical decision point to determine the complexity of the issue.",
@@ -632,19 +683,33 @@ Your response MUST be structured with the following headings:
                 const nodes = svgElement.querySelectorAll('.node');
                 nodes.forEach(node => {
                     node.addEventListener('click', () => {
-                        // Mermaid might add extra characters to the ID, so we need the base ID.
-                        const nodeId = node.id.split('-')[0];
-                        
-                        const previouslySelected = svgElement.querySelector('.node.selected');
-                        if (previouslySelected) {
-                            previouslySelected.classList.remove('selected');
+                        const clickedDomId = node.id;
+                        let bestMatchId = null;
+
+                        // Find the longest key from our explanations object that is a prefix of the clicked node's DOM ID.
+                        // This robustly handles cases where Mermaid appends suffixes to the original node ID.
+                        for (const key in explanations) {
+                            if (clickedDomId.startsWith(key)) {
+                                if (!bestMatchId || key.length > bestMatchId.length) {
+                                    bestMatchId = key;
+                                }
+                            }
                         }
                         
-                        node.classList.add('selected');
-                        activeFlowchartNodeId = nodeId;
+                        if (bestMatchId) {
+                            const previouslySelected = svgElement.querySelector('.node.selected');
+                            if (previouslySelected) {
+                                previouslySelected.classList.remove('selected');
+                            }
+                            
+                            node.classList.add('selected');
+                            activeFlowchartNodeId = bestMatchId;
 
-                        const explanation = explanations[nodeId] || "No explanation available for this node.";
-                        explanationContent.innerHTML = `<p>${explanation.replace(/\n/g, '<br>')}</p>`;
+                            const explanation = explanations[bestMatchId] || "No explanation available for this node.";
+                            explanationContent.innerHTML = `<p>${explanation.replace(/\n/g, '<br>')}</p>`;
+                        } else {
+                            console.warn(`No explanation found for node with DOM ID: ${clickedDomId}`);
+                        }
                     });
                 });
             });
